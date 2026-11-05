@@ -1,0 +1,30 @@
+INSTRUCCIONES - Segundos contra vidas
+
+Equipo: [nombre del equipo] · Hackathon de Datos 2026
+
+1. QUÉ ES
+   [Por completar al final: qué hace el notebook, en dos líneas]
+
+2. PROBARLO EN LÍNEA
+   [enlace de Colab, o "No aplica"]
+
+3. ENTORNO
+   Python 3.11 · dependencias con versión exacta en requirements.txt
+
+4. EJECUTARLO
+   pip install -r requirements.txt
+   python -m src.verificar_fuentes
+   jupyter notebook notebooks/proyecto_final.ipynb
+   (Ejecutar todas las celdas. Los datos se descargan solos desde sus URLs la primera vez.)
+
+5. QUÉ DEBE VER
+   [Por completar al final: hallazgo principal con cifra]
+
+6. DATOS Y FUENTES
+   [Por completar: archivo · conjunto · enlace · licencia, a partir de src/fuentes.py]
+
+7. USO DE IA
+   [Por completar: herramienta y para qué]
+
+8. CONTACTO
+   Cristopher Corrales Boada · cristophh.07@gmail.com
