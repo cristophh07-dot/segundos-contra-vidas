@@ -18,6 +18,8 @@ import zipfile
 
 import pandas as pd
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from src.fuentes import FUENTES
 
@@ -25,9 +27,18 @@ CACHE = pathlib.Path("data/cache")
 CACHE.mkdir(parents=True, exist_ok=True)
 HEADERS = {"User-Agent": "hackathon-itm-2026"}
 
+# Sesión con reintentos automáticos: si falla la conexión o el DNS (pasa a veces
+# en la primera petición), espera 1, 2, 4, 8... segundos y vuelve a intentar.
+_reintentos = Retry(total=6, connect=6, read=3, backoff_factor=1,
+                    status_forcelist=[429, 500, 502, 503, 504], allowed_methods=["GET", "HEAD"])
+SESION = requests.Session()
+SESION.headers.update(HEADERS)
+SESION.mount("https://", HTTPAdapter(max_retries=_reintentos))
+SESION.mount("http://", HTTPAdapter(max_retries=_reintentos))
+
 
 def _descargar(url: str, destino: pathlib.Path) -> None:
-    with requests.get(url, headers=HEADERS, stream=True, timeout=600) as r:
+    with SESION.get(url, stream=True, timeout=600) as r:
         r.raise_for_status()
         tmp = destino.with_suffix(destino.suffix + ".part")
         with open(tmp, "wb") as f:
@@ -82,7 +93,7 @@ def _leer_arcgis(url: str) -> pd.DataFrame:
             "where": "1=1", "outFields": "*", "outSR": 4326, "f": "geojson",
             "resultOffset": offset, "resultRecordCount": paso, "orderByFields": "objectid",
         }
-        r = requests.get(url, params=params, headers=HEADERS, timeout=120)
+        r = SESION.get(url, params=params, timeout=120)
         r.raise_for_status()
         js = r.json()
         feats = js.get("features", [])
