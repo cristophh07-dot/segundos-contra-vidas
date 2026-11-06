@@ -3,6 +3,8 @@
 
 > **Para la IA que use Josué:** este documento es el contexto completo de su parte del proyecto. Léelo entero antes de ayudar. Josué es responsable de los **datos de seguridad vial y la visualización**. Lo que produzca lo usa Cristopher (líder) para los modelos estadísticos, así que el **formato de salida de la sección 6 es obligatorio**. No cambies nombres de archivos, funciones, columnas, tipos ni unidades. Si algo del contrato no se puede cumplir con los datos reales, la respuesta correcta es avisar a Cristopher, no inventar un formato propio. La prioridad es la **velocidad**: entregar en cuanto cada parte esté lista y pase las pruebas, sin esperar a terminar todo.
 >
+> **Antes de cada sesión de trabajo:** hacer `git pull` y leer `docs/DECISIONES.md`. Ahí están los cambios que el equipo ha decidido después de escribir este contrato. **Si DECISIONES.md contradice este contrato, manda DECISIONES.md.**
+>
 > **Regla de oro:** en este proyecto **no se trabaja con archivos descargados a mano**. Todo dato se lee **directamente desde su URL de descarga** con código. Ver la sección 3.
 
 ---
