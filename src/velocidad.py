@@ -93,6 +93,56 @@ def catalogo_corredores() -> pd.DataFrame:
     return cat
 
 
+def tiempo_viaje_gt() -> pd.DataFrame:
+    """Velocidad y tiempo de viaje de Google Traffic por corredor, fecha y hora (6 a 20 h).
+    Guarda data/processed/tiempo_viaje_gt.csv.
+
+    Google Traffic registra varias lecturas por tramo y hora (lo normal son 1 o 2, hasta 13): primero
+    se promedian las lecturas de cada tramo y hora, para que un sentido con más lecturas no pese más.
+    Cuando un corredor tiene varios tramos (uno por sentido), se promedian ponderando por la
+    longitud mediana de cada tramo. Se usa la mediana y no la longitud de cada fila porque la
+    longitud registrada de un mismo tramo cambia entre filas (hay valores raros, como 8,0 km en
+    Ferrocarril). tiempo_viaje_min es el tiempo promedio de recorrer el corredor en un sentido.
+    """
+    gt = leer("velocidad_gt", usecols=["CORREDOR", "FECHA", "HORA", "LONGITUD_KM", "TV_MINUTOS", "VELOCIDAD_KM/H"])
+    gt["corredor_id"] = gt["CORREDOR"].map(TRAMO_A_CORREDOR)
+    sin_corredor = sorted(gt.loc[gt["corredor_id"].isna(), "CORREDOR"].unique())
+    if sin_corredor:
+        raise ValueError(f"Tramos de velocidad_gt sin corredor_id: {sin_corredor}")
+
+    # FECHA viene como día/mes/año ("1/02/2017" = 1 de febrero de 2017).
+    gt["fecha"] = pd.to_datetime(gt["FECHA"], format="%d/%m/%Y", errors="coerce")
+    if gt["fecha"].isna().any():
+        raise ValueError("Hay fechas de velocidad_gt que no siguen el formato día/mes/año")
+
+    longitud_tramo = gt.groupby("CORREDOR")["LONGITUD_KM"].median()
+
+    # Paso 1: promedio simple de las lecturas repetidas de cada tramo en cada hora.
+    por_tramo = gt.groupby(["corredor_id", "CORREDOR", "fecha", "HORA"], as_index=False).agg(
+        v=("VELOCIDAD_KM/H", "mean"), t=("TV_MINUTOS", "mean"),
+    )
+    por_tramo["peso"] = por_tramo["CORREDOR"].map(longitud_tramo)
+
+    # Paso 2: promedio de los tramos del corredor ponderado por longitud. Los pesos solo cuentan
+    # donde hay dato (no se asume 0 donde falta).
+    por_tramo["peso_v"] = por_tramo["peso"].where(por_tramo["v"].notna())
+    por_tramo["peso_t"] = por_tramo["peso"].where(por_tramo["t"].notna())
+    por_tramo["v_x_peso"] = por_tramo["v"] * por_tramo["peso"]
+    por_tramo["t_x_peso"] = por_tramo["t"] * por_tramo["peso"]
+    g = por_tramo.groupby(["corredor_id", "fecha", "HORA"], as_index=False).agg(
+        v=("v_x_peso", "sum"), pv=("peso_v", "sum"), t=("t_x_peso", "sum"), pt=("peso_t", "sum"),
+    )
+    out = pd.DataFrame({
+        "corredor_id": g["corredor_id"],
+        "fecha": g["fecha"].dt.strftime("%Y-%m-%d"),
+        "hora": g["HORA"].astype(int),
+        "velocidad_gt_kmh": (g["v"] / g["pv"].where(g["pv"] > 0)).round(2),
+        "tiempo_viaje_min": (g["t"] / g["pt"].where(g["pt"] > 0)).round(2),
+    }).sort_values(["corredor_id", "fecha", "hora"]).reset_index(drop=True)
+    out.to_csv(PROCESSED / "tiempo_viaje_gt.csv", index=False, encoding="utf-8")
+    return out
+
+
 if __name__ == "__main__":
     cat = catalogo_corredores()
     print(cat.drop(columns=["fuente_longitud", "geometria_wkt"]).to_string())
@@ -101,3 +151,13 @@ if __name__ == "__main__":
     assert cat["alias_direccion"].notna().all()
     assert (cat["longitud_km"] > 0).all()
     print("\nCatálogo: pruebas de aceptación OK ✔")
+
+    gt = tiempo_viaje_gt()
+    assert gt["corredor_id"].isin(cat["corredor_id"]).all()
+    assert not gt.duplicated(["corredor_id", "fecha", "hora"]).any()
+    assert gt["hora"].between(0, 23).all()
+    assert gt["velocidad_gt_kmh"].dropna().between(1, 120).all()
+    print(f"\ntiempo_viaje_gt: {len(gt):,} filas · {gt['fecha'].min()} a {gt['fecha'].max()} · "
+          f"horas {gt['hora'].min()} a {gt['hora'].max()} · {gt['corredor_id'].nunique()} corredores")
+    print(gt.groupby("corredor_id")[["velocidad_gt_kmh", "tiempo_viaje_min"]].mean().round(1).to_string())
+    print("\ntiempo_viaje_gt: pruebas OK ✔")
