@@ -12,6 +12,9 @@
 
 | Fecha | # | Decisión | Afecta a |
 |---|---|---|---|
+| 2026-11-08 | D24 | El modelo logístico queda validado (AUC 0,76 en 2020–2021, calibrado, 353 muertos predichos contra 357 observados). Sus probabilidades se usan en el Monte Carlo para convertir incidentes graves en muertes esperadas según el perfil de las víctimas de cada corredor. | Cristopher |
+| 2026-11-08 | D23 | La reducción de velocidad se presenta como la medida que protege a los más vulnerables (peatón ×3,4, ciclista ×2,8, 60+ ×5,7). El carril de motos protege por volumen (~75 % de las víctimas). | Todos |
+| 2026-11-08 | D22 | Modelo logístico principal: actor, edad, sexo, franja, fin de semana, cuarentena y año, con errores agrupados por radicado. La clase de incidente va solo como sensibilidad (casi coincide con el actor). | Cristopher |
 | 2026-11-08 | D21 | La velocidad nocturna por corredor sale de `velocidad_simm` (solo 2020): p85 y % de mediciones sobre 50 km/h, ponderado por intensidad, sin velocidades 0 ni mayores de 150. | Johan |
 | 2026-11-08 | D20 | La hora entra en los modelos como control, no como efecto de la velocidad: de noche el p85 solo sube ~4 % y la letalidad es 5,6 veces la del día. El riesgo nocturno se reporta aparte como hallazgo. | Cristopher |
 | 2026-11-08 | D19 | La cuarentena (mar–ago 2020: +29 % de velocidad, letalidad de moto +31 % y de peatón +37 %, p = 0,12) es **evidencia consistente, no prueba**. Sirve para contrastar el exponente de la binomial negativa. Las comparaciones de letalidad se hacen **por actor**, no con el promedio. | Cristopher |
