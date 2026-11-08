@@ -5,6 +5,9 @@ Los resultados también se guardan en data/processed/ (carpeta regenerable).
 
 Cómo buscar los alias en las direcciones de los incidentes (para Josué):
 - Las direcciones vienen como cruces en nomenclatura numérica ("CR 80 CL 62", "CR 43 A CL 34").
+- Cada corredor trae dos formas: la abreviada (victimas_medata) y la completa ("CARRERA 80", "CALLE 44"),
+  que es la de la base del ITM según la decisión D10. La forma completa aún no se ha contrastado con
+  los datos del ITM: Josué puede confirmarla con incidentes_limpios().
 - Busca cada alias con límites de palabra (regex) para que "CR 80" no atrape "CR 800".
 - Una letra suelta después del alias ("CR 80 B", "CL 30 A") es OTRA calle: exclúyela,
   salvo que el alias ya incluya la letra (por ejemplo "CR 43 A").
@@ -44,17 +47,17 @@ TRAMO_A_CORREDOR = {
 
 # nombre legible, alias de dirección (mayúscula, sin tildes) y nombre del corredor en el SIMM.
 CORREDORES = {
-    "AV_80": ("Avenida 80", "CR 80|AV 80|AVENIDA 80", "Avenida 80"),
-    "AV_33": ("Avenida 33", "CL 33|AV 33", "Avenida 33"),
-    "CL_30": ("Calle 30", "CL 30", "Calle 30"),
-    "AV_POBLADO": ("Avenida El Poblado", "CR 43 A", "Avenida El Poblado"),
-    "AV_SAN_JUAN": ("Avenida San Juan", "CL 44", "San Juan"),
-    "AV_ORIENTAL": ("Avenida Oriental", "CR 46", "Avenida Oriental"),
-    "AV_GUAYABAL": ("Avenida Guayabal", "CR 52", "Avenida Guayabal"),
-    "AUT_NORTE": ("Autopista Norte", "CR 64 C", "Autopista Norte"),
-    "AUT_SUR": ("Autopista Sur", "CR 48", "Autopista Sur"),
-    "AV_REGIONAL": ("Avenida Regional", "CR 55", "Avenida Regional"),
-    "AV_FERROCARRIL": ("Avenida Ferrocarril", "CR 57", "Avenida Ferrocarril"),
+    "AV_80": ("Avenida 80", "CR 80|CARRERA 80|AV 80|AVENIDA 80", "Avenida 80"),
+    "AV_33": ("Avenida 33", "CL 33|CALLE 33|AV 33|AVENIDA 33", "Avenida 33"),
+    "CL_30": ("Calle 30", "CL 30|CALLE 30", "Calle 30"),
+    "AV_POBLADO": ("Avenida El Poblado", "CR 43 A|CARRERA 43 A|CARRERA 43A", "Avenida El Poblado"),
+    "AV_SAN_JUAN": ("Avenida San Juan", "CL 44|CALLE 44", "San Juan"),
+    "AV_ORIENTAL": ("Avenida Oriental", "CR 46|CARRERA 46", "Avenida Oriental"),
+    "AV_GUAYABAL": ("Avenida Guayabal", "CR 52|CARRERA 52", "Avenida Guayabal"),
+    "AUT_NORTE": ("Autopista Norte", "CR 64 C|CARRERA 64 C|CARRERA 64C", "Autopista Norte"),
+    "AUT_SUR": ("Autopista Sur", "CR 48|CARRERA 48", "Autopista Sur"),
+    "AV_REGIONAL": ("Avenida Regional", "CR 55|CARRERA 55", "Avenida Regional"),
+    "AV_FERROCARRIL": ("Avenida Ferrocarril", "CR 57|CARRERA 57", "Avenida Ferrocarril"),
     "AV_PALMAS": ("Avenida Las Palmas", "LAS PALMAS", "Avenida Las Palmas"),
 }
 
