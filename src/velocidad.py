@@ -14,7 +14,15 @@ Cómo buscar los alias en las direcciones de los incidentes (para Josué):
 - Un cruce entre dos corredores (por ejemplo "CR 80 CL 30") coincide con ambos.
 - Un alias cubre toda la calle, pero el tramo medido por Google Traffic es solo una parte
   (por ejemplo Av. 80 va de Calle 30 a Calle 60/65): filtra por las calles que cruzan.
-- AV_PALMAS casi no aparece en las direcciones ("VIA LAS PALMAS KM 8 + 620 MTS"): asignar por coordenadas.
+- AV_PALMAS y AV_REGIONAL no tienen un número de vía propio: ubicarlas por coordenadas.
+  Las Palmas casi no aparece en las direcciones ("VIA LAS PALMAS KM 8"); en la Regional el número
+  más frecuente cerca de sus sensores (CR 62) llega solo al 32 %.
+- Los alias de los demás corredores se confirmaron con coordenadas (docs/validacion_alias_coord.txt):
+  en las víctimas a menos de 100 m de sus sensores del SIMM, el número aparece entre el 60 % y el 93 %.
+  AUT_SUR es la Carrera 50 (no la 48: la Carrera 48 es la Avenida Las Vegas, otro corredor del SIMM).
+  AV_33 tiene dos números según el tramo (Calle 33 y Calle 37).
+- Una misma carrera o calle recorre toda la ciudad (la Carrera 50 llega hasta la Calle 97 y la 52 hasta
+  la 107): para quedarse con el tramo medido hay que filtrar por la calle que cruza.
 """
 from __future__ import annotations
 
@@ -48,15 +56,17 @@ TRAMO_A_CORREDOR = {
 # nombre legible, alias de dirección (mayúscula, sin tildes) y nombre del corredor en el SIMM.
 CORREDORES = {
     "AV_80": ("Avenida 80", "CR 80|CARRERA 80|AV 80|AVENIDA 80", "Avenida 80"),
-    "AV_33": ("Avenida 33", "CL 33|CALLE 33|AV 33|AVENIDA 33", "Avenida 33"),
+    "AV_33": ("Avenida 33", "CL 33|CALLE 33|CL 37|CALLE 37|AV 33|AVENIDA 33", "Avenida 33"),
     "CL_30": ("Calle 30", "CL 30|CALLE 30", "Calle 30"),
     "AV_POBLADO": ("Avenida El Poblado", "CR 43 A|CARRERA 43 A|CARRERA 43A", "Avenida El Poblado"),
     "AV_SAN_JUAN": ("Avenida San Juan", "CL 44|CALLE 44", "San Juan"),
     "AV_ORIENTAL": ("Avenida Oriental", "CR 46|CARRERA 46", "Avenida Oriental"),
     "AV_GUAYABAL": ("Avenida Guayabal", "CR 52|CARRERA 52", "Avenida Guayabal"),
     "AUT_NORTE": ("Autopista Norte", "CR 64 C|CARRERA 64 C|CARRERA 64C", "Autopista Norte"),
-    "AUT_SUR": ("Autopista Sur", "CR 48|CARRERA 48", "Autopista Sur"),
-    "AV_REGIONAL": ("Avenida Regional", "CR 55|CARRERA 55", "Avenida Regional"),
+    "AUT_SUR": ("Autopista Sur", "CR 50|CARRERA 50", "Autopista Sur"),
+    # Regional: no tiene un número propio (el más alto cerca de sus sensores es CR 62, con 32 %).
+    # Estos alias son de baja confianza: ubicar por coordenadas.
+    "AV_REGIONAL": ("Avenida Regional", "CR 62|CARRERA 62|CR 49|CARRERA 49", "Avenida Regional"),
     "AV_FERROCARRIL": ("Avenida Ferrocarril", "CR 57|CARRERA 57", "Avenida Ferrocarril"),
     "AV_PALMAS": ("Avenida Las Palmas", "LAS PALMAS", "Avenida Las Palmas"),
 }

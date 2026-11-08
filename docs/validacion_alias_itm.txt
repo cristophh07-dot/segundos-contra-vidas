@@ -1,0 +1,68 @@
+Direcciones no vacías en direccion_interpolada: 691,440
+Ejemplos al azar: CALLE 71 CON TRANSVERSAL 39 B | CARRERA 52 CON CALLE 6 SUR | CALLE 11 CON CARRERA 43 C | CALLE 33 CON CARRERA 74 E | CALLE 8 B CON CARRERA 30 | CALLE 18 CON CARRERA 43 F | CALLE 50 CON CARRERA 68 | CALLE 120 CON CARRERA 72
+
+=== Números de vía candidatos ===
+
+== AV_REGIONAL
+  'CARRERA 55': 13,583 filas
+     variantes: (sin letra): 12,685 · A: 480 · B: 148 · AB: 126 · D: 80 · C: 41
+     calle que cruza (p5 / mediana / p95): 27 / 45 / 93
+     ejemplos: CALLE 94 CON CARRERA 55 | CARRERA 55 CON CALLE 37 | CALLE 30 A CON CARRERA 55 | CARRERA 55 CON CALLE 50
+  'CARRERA 50': 30,721 filas
+     variantes: (sin letra): 23,266 · C: 1,941 · A: 1,512 · FF: 1,306 · B: 1,142 · D: 515
+     calle que cruza (p5 / mediana / p95): 4 / 31 / 97
+     ejemplos: CARRERA 50 CON CALLE 89 | CALLE 112 CON CARRERA 50 | CARRERA 50 CON CALLE 37 | CARRERA 50 CON CALLE 41
+
+== AUT_NORTE
+  'CARRERA 64': 36,613 filas
+     variantes: C: 23,955 · (sin letra): 7,071 · A: 1,818 · AA: 1,791 · B: 1,227 · D: 407
+     calle que cruza (p5 / mediana / p95): 47 / 78 / 114
+     ejemplos: CARRERA 64 C CON CALLE 97 | CARRERA 64 C CON CALLE 72 | CARRERA 64 CON CALLE 67 | CARRERA 64 C CON CALLE 67
+
+== AUT_SUR
+  'CARRERA 48': 21,843 filas
+     variantes: (sin letra): 19,630 · A: 1,698 · C: 271 · B: 181 · D: 26 · DD: 10
+     calle que cruza (p5 / mediana / p95): 4 / 19 / 93
+     ejemplos: CARRERA 48 CON CALLE 15 SUR | CARRERA 48 CON CALLE 14 | CALLE 10 CON CARRERA 48 | CARRERA 48 CON CALLE 62
+  'CARRERA 50': 30,721 filas
+     variantes: (sin letra): 23,266 · C: 1,941 · A: 1,512 · FF: 1,306 · B: 1,142 · D: 515
+     calle que cruza (p5 / mediana / p95): 4 / 31 / 97
+     ejemplos: CARRERA 50 CON CALLE 89 | CALLE 112 CON CARRERA 50 | CARRERA 50 CON CALLE 37 | CARRERA 50 CON CALLE 41
+
+== AV_GUAYABAL
+  'CARRERA 52': 29,075 filas
+     variantes: (sin letra): 28,186 · A: 675 · B: 137 · C: 47 · D: 19 · FF: 5
+     calle que cruza (p5 / mediana / p95): 3 / 34 / 107
+     ejemplos: CALLE 6 SURCON CARRERA 52 | CARRERA 52 CON CALLE 14 | CARRERA 52 CON CALLE 7 | CARRERA 52 CON CALLE 35
+  'CARRERA 50': 30,721 filas
+     variantes: (sin letra): 23,266 · C: 1,941 · A: 1,512 · FF: 1,306 · B: 1,142 · D: 515
+     calle que cruza (p5 / mediana / p95): 4 / 31 / 97
+     ejemplos: CARRERA 50 CON CALLE 89 | CALLE 112 CON CARRERA 50 | CARRERA 50 CON CALLE 37 | CARRERA 50 CON CALLE 41
+
+=== Búsqueda por nombre ===
+
+== AV_REGIONAL · 'REGIONAL': 0 filas
+
+== AUT_NORTE · 'AUTOPISTA': 10 filas
+     CALLE 20 A CON AUTOPISTA 80  (2)
+     CALLE 19 CON AUTOPISTA 80  (1)
+     AUTOPISTA 8 CON DESCONOCIDA 970  (1)
+     CALLE 48 CON AUTOPISTA 99 SUR  (1)
+     DESCONOCIDA 7 CON AUTOPISTA 5  (1)
+
+== AUT_SUR · 'AUTOPISTA': 10 filas
+     CALLE 20 A CON AUTOPISTA 80  (2)
+     CALLE 19 CON AUTOPISTA 80  (1)
+     AUTOPISTA 8 CON DESCONOCIDA 970  (1)
+     CALLE 48 CON AUTOPISTA 99 SUR  (1)
+     DESCONOCIDA 7 CON AUTOPISTA 5  (1)
+
+== AV_PALMAS · 'PALMAS': 1 filas
+     CON VIA LAS PALMAS KM 8  (1)
+
+== AV_PALMAS · 'TRANSVERSAL SUPERIOR': 0 filas
+
+== AV_GUAYABAL · 'GUAYABAL': 0 filas
+
+=== Carreras más frecuentes en toda la base (con letra) ===
+65: 28,359 · 80: 28,247 · 52: 28,186 · 64 C: 23,955 · 50: 23,266 · 63: 22,431 · 46: 20,014 · 48: 19,630 · 49: 16,624 · 57: 15,485 · 43 A: 15,018 · 62: 13,294 · 55: 12,685 · 51: 12,605 · 45: 12,074 · 70: 11,466 · 43: 9,245 · 53: 8,705 · 76: 7,933 · 64: 7,071 · 81: 6,692 · 66 B: 6,295 · 39: 6,125 · 44: 5,847 · 74: 5,693 · 54: 5,564 · 67: 5,557 · 84: 5,180 · 32: 5,150 · 47: 5,122
