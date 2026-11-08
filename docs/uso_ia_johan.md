@@ -11,7 +11,7 @@
 ## Cómo se verificó
 - Todos los scripts se ejecutaron en mi computador con los datos reales descargados desde las URLs de `src/fuentes.py`; nada se leyó desde archivos bajados a mano.
 - Las cifras de los reportes (filas, años, horas, corredores, longitudes) salen de esas ejecuciones, no de la IA.
-- Los códigos de dirección de los corredores (por ejemplo `CR 80`, `CL 44`) fueron propuestos por la IA a partir de la nomenclatura de Medellín y se contrastaron con las direcciones reales de `victimas_medata` (`docs/validacion_alias.txt`). Los de Autopista Norte, Autopista Sur, Avenida Regional y Avenida Ferrocarril están pendientes de confirmar en un mapa.
+- Los códigos de dirección de los corredores (por ejemplo `CR 80`, `CL 44`) fueron propuestos por la IA a partir de la nomenclatura de Medellín y luego se contrastaron con datos reales: con las direcciones de `victimas_medata` (`docs/validacion_alias.txt`), con `direccion_interpolada` de la base del ITM (`docs/validacion_alias_itm.txt`) y, para identificar qué número corresponde a cada vía, cruzando los sensores del SIMM con las coordenadas de `victimas_medata` (`docs/validacion_alias_coord.txt`). Esa comprobación corrigió una propuesta inicial errónea de la IA (Autopista Sur es la Carrera 50, no la 48) y mostró que la Avenida Regional y Las Palmas no tienen un número de vía propio.
 - El significado de las columnas de clasificación del SIMM se tomó del diccionario publicado por MEData (`simmtraffic.json`).
 
 ## Lo que la IA no hizo
