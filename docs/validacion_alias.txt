@@ -1,0 +1,59 @@
+Direcciones no vacías: 235,831
+
+== AV_80
+  'CR 80': 11,115 filas (con sufijo de una letra A/B/C: 518) · ej: CR 80 CL 8 | CR 80 CL 76 | CR 80 CL 101 | CR 80 CL 65
+  'AV 80': 94 filas (con sufijo de una letra A/B/C: 0) · ej: AV 80 CL 3 SUR | AV 80 CL 50 | AV 80 CL 6 SUR | AV 80 CR 76
+  'AVENIDA 80': 56 filas (con sufijo de una letra A/B/C: 0) · ej: AVENIDA 80 CL 33 | AVENIDA 80 CL 43 | AVENIDA 80 CL 30 A | AVENIDA 80 CL 65
+
+== AV_33
+  'CL 33': 3,598 filas (con sufijo de una letra A/B/C: 239) · ej: CL 33 CR 80 | CL 33 C CR 88 A | CL 33 CR 83 | CR 60 CL 33
+  'AV 33': 14 filas (con sufijo de una letra A/B/C: 0) · ej: AV 33 CR 48 | AV 33 CR 65 | AV 33 CL 75 C | AV 33 CR 62
+  'AVENIDA 33': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+
+== CL_30
+  'CL 30': 5,717 filas (con sufijo de una letra A/B/C: 1,489) · ej: CR 80 CL 30 | CL 30 CR 88 | CL 30 CR 73 | CL 30 A CR 66
+
+== AV_POBLADO
+  'CR 43 A': 3,437 filas (con sufijo de una letra A/B/C: 0) · ej: CR 43 A CL 9 | CR 43 A CL 34 | CL 12 SUR CR 43 A | CR 43 A CL 23
+  'AV POBLADO': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+  'AVENIDA EL POBLADO': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+
+== AV_SAN_JUAN
+  'CL 44': 9,295 filas (con sufijo de una letra A/B/C: 676) · ej: CL 44 CR 43 | CR 63 CL 44 | CL 44 CR 9 | CL 44 CR 66
+  'AV SAN JUAN': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+  'AVENIDA SAN JUAN': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+
+== AV_ORIENTAL
+  'CR 46': 6,147 filas (con sufijo de una letra A/B/C: 249) · ej: CR 46 CL 98 | CL 52 CR 46 | CR 46 CL 102 | CR 46 CL 45
+  'AV ORIENTAL': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+  'AVENIDA ORIENTAL': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+
+== AV_GUAYABAL
+  'CR 52': 9,226 filas (con sufijo de una letra A/B/C: 217) · ej: CR 52 CL 73 | CR 52 CL 7 SUR | CR 52 CL 37 | CR 52 CL 10
+  'AV GUAYABAL': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+  'AVENIDA GUAYABAL': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+
+== AUT_NORTE
+  'CR 64 C': 9,078 filas (con sufijo de una letra A/B/C: 0) · ej: CR 64 C CL 114 | CR 64 C CL 97 A | CR 64 C CL 78 | CR 64 C CL 67
+  'AUTOPISTA NORTE': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+  'AUT NORTE': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+
+== AUT_SUR
+  'CR 48': 5,838 filas (con sufijo de una letra A/B/C: 853) · ej: CR 48 CL 93 | CR 48 CL 20 | CR 48 CL 17 | CR 48 CL 14
+  'AUTOPISTA SUR': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+  'AUT SUR': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+
+== AV_REGIONAL
+  'CR 55': 4,331 filas (con sufijo de una letra A/B/C: 194) · ej: CR 55 CL 55 | CR 55 CL 42 | CL 67 CR 55 | CR 55 CL 47
+  'AVENIDA REGIONAL': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+  'AV REGIONAL': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+
+== AV_FERROCARRIL
+  'CR 57': 4,275 filas (con sufijo de una letra A/B/C: 134) · ej: CR 57 CL 48 | CR 57 CL 88 | CR 57 CL 58 | CL 44 CR 57
+  'AV FERROCARRIL': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+  'AVENIDA FERROCARRIL': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+
+== AV_PALMAS
+  'AV LAS PALMAS': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+  'AVENIDA LAS PALMAS': 0 filas (con sufijo de una letra A/B/C: 0) · ej: 
+  'LAS PALMAS': 12 filas (con sufijo de una letra A/B/C: 0) · ej: VIA LAS PALMAS KM 8 + 620 MTS | VIA LAS PALMAS KM 9 + 200 MTS | VÍA LAS PALMAS KM 9 + 30 | VIA LAS PALMAS

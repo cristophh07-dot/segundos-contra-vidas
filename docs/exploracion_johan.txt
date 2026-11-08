@@ -1,0 +1,689 @@
+======================================================================
+FUENTE: velocidad_gt
+======================================================================
+Columnas (20):
+  - ID  [int64]  ej: 1210
+  - FECHA_HORA  [str]  ej: 1/02/2017 6:00
+  - TV_[S]  [int64]  ej: 377
+  - CORREDOR  [int64]  ej: 2
+  - DÍA  [int64]  ej: 1
+  - MES  [int64]  ej: 2
+  - AÑO  [int64]  ej: 2017
+  - HORA  [int64]  ej: 6
+  - FECHA  [str]  ej: 1/02/2017
+  - NOMBRE_CORREDOR  [str]  ej: Avenida Regional
+  - Flujo_tipo  [str]  ej: Continuo
+  - SENTIDO  [str]  ej: SN
+  - INICIO  [str]  ej: Tugo
+  - FIN  [str]  ej: San Juan
+  - LONGITUD_KM  [float64]  ej: 6.6
+  - TV_MINUTOS  [float64]  ej: 6.3
+  - VELOCIDAD_KM/H  [int64]  ej: 63
+  - TV_MIN/KM  [float64]  ej: 1.0
+  - DIASEM  [int64]  ej: 3
+  - NOMBRE_DÍA  [str]  ej: Mi�rcoles
+
+Columnas de fecha detectadas: ['FECHA_HORA', 'FECHA', 'INICIO', 'FIN']
+Columnas de hora detectadas: ['HORA']
+Columnas categóricas detectadas: ['CORREDOR', 'NOMBRE_CORREDOR', 'Flujo_tipo', 'SENTIDO', 'NOMBRE_DÍA']
+Columnas numéricas detectadas: ['TV_[S]', 'LONGITUD_KM', 'TV_MINUTOS', 'VELOCIDAD_KM/H', 'TV_MIN/KM']
+
+Filas totales: 682,502
+
+Rango de fechas (parseadas):
+  FECHA_HORA: 2017-02-01 06:00:00  →  2020-12-15 20:00:00   (fechas válidas: 682,502)
+  FECHA: 2017-02-01 00:00:00  →  2020-12-15 00:00:00   (fechas válidas: 682,502)
+  INICIO: None  →  None   (fechas válidas: 0)
+  FIN: None  →  None   (fechas válidas: 0)
+
+Filas por año (columna de año de la fuente):
+  2017:124,619, 2018:206,000, 2019:214,761, 2020:137,122
+
+Horas (extraídas de la 1.ª columna de fecha), conteo por hora 0–23:
+  0:0, 1:0, 2:0, 3:0, 4:0, 5:3, 6:32,570, 7:48,310, 8:45,805, 9:45,592, 10:45,906, 11:46,093, 12:45,728, 13:48,248, 14:46,007, 15:45,844, 16:45,953, 17:46,154, 18:48,334, 19:45,889, 20:46,066, 21:0, 22:0, 23:0
+  ¿Hay datos entre 20:00 y 5:59? SÍ
+
+Valores de 'HORA': 10:45,906, 11:46,093, 12:45,728, 13:48,248, 14:46,007, 15:45,844, 16:45,953, 17:46,154, 18:48,334, 19:45,889, 20:46,066, 6:32,573, 7:48,310, 8:45,805, 9:45,592
+
+Columnas categóricas (valores únicos, máx. 300):
+  CORREDOR: 22 únicos
+      2  (32,377)
+      4  (32,338)
+      5  (32,303)
+      6  (32,286)
+      11  (32,155)
+      12  (32,130)
+      13  (32,114)
+      14  (32,085)
+      17  (31,994)
+      18  (31,981)
+      21  (31,894)
+      22  (31,887)
+      7  (31,632)
+      9  (31,586)
+      15  (31,379)
+      16  (31,360)
+      19  (31,319)
+      20  (31,299)
+      23  (31,245)
+      24  (31,217)
+      25  (22,976)
+      26  (22,945)
+  NOMBRE_CORREDOR: 12 únicos
+      Autopista Norte  (64,589)
+      Avenida Las Palmas  (64,285)
+      Avenida El Poblado  (64,167)
+      Avenida 33  (63,975)
+      Avenida San Juan  (63,781)
+      Avenida 80  (63,218)
+      Avenida Guayabal  (62,771)
+      Calle 30  (62,618)
+      Avenida Ferrocarril  (62,462)
+      Avenida Oriental  (45,921)
+      Avenida Regional  (32,377)
+      Autopista Sur  (32,338)
+  Flujo_tipo: 2 únicos
+      Interrumpido  (488,913)
+      Continuo  (193,589)
+  SENTIDO: 4 únicos
+      NS  (246,111)
+      SN  (246,017)
+      WE  (95,194)
+      EW  (95,180)
+  NOMBRE_DÍA: 10 únicos
+      Lunes  (102,651)
+      Martes  (102,209)
+      Mi�rcoles  (101,236)
+      Viernes  (101,110)
+      Jueves  (100,697)
+      S�bado  (87,238)
+      Domingo  (86,949)
+      martes  (157)
+      mi�rcoles  (144)
+      jueves  (111)
+
+Columnas numéricas (mín, máx, promedio):
+  TV_[S]: 190 , 4588 , 528.95
+  LONGITUD_KM: 1.3 , 8.0 , 3.95
+  TV_MINUTOS: 3.2 , 76.5 , 8.82
+  VELOCIDAD_KM/H: 3.0 , 79.2 , 29.49
+  TV_MIN/KM: 0.8 , 18.1 , 2.52
+
+Nulos por columna:
+  FECHA_HORA: 0 (0.0 %)
+  FECHA: 0 (0.0 %)
+  INICIO: 0 (0.0 %)
+  FIN: 0 (0.0 %)
+  HORA: 0 (0.0 %)
+  AÑO: 0 (0.0 %)
+  CORREDOR: 0 (0.0 %)
+  NOMBRE_CORREDOR: 0 (0.0 %)
+  Flujo_tipo: 0 (0.0 %)
+  SENTIDO: 0 (0.0 %)
+  NOMBRE_DÍA: 0 (0.0 %)
+  TV_[S]: 0 (0.0 %)
+  LONGITUD_KM: 0 (0.0 %)
+  TV_MINUTOS: 0 (0.0 %)
+  VELOCIDAD_KM/H: 0 (0.0 %)
+  TV_MIN/KM: 0 (0.0 %)
+
+======================================================================
+FUENTE: velocidad_simm
+======================================================================
+Columnas (25):
+  - carril  [str]  ej: XC-1-BOL-65-ENT:ORI-OCC
+  - fecha_trafico  [str]  ej: 1/07/2020 0:00
+  - fecha  [str]  ej: 1/07/2020
+  - hora  [int64]  ej: 0
+  - dia  [str]  ej: Miercoles
+  - dia_num  [int64]  ej: 3
+  - mes_num  [int64]  ej: 7
+  - mes  [str]  ej: Julio
+  - ano  [int64]  ej: 2020
+  - velocidad_km_h  [int64]  ej: 27
+  - corredor  [str]  ej: Avenida Bolivariana
+  - sentido  [str]  ej: EW
+  - operacion  [str]  ej: interrumpido
+  - intensidad  [int64]  ej: 148
+  - categoria_1  [int64]  ej: 136
+  - categoria_2  [int64]  ej: 9
+  - categoria_3  [int64]  ej: 3
+  - ocupacion  [int64]  ej: 15
+  - tipo_subsistema  [str]  ej: ARS
+  - longitud  [str]  ej: 833291,8125
+  - latitud  [str]  ej: 1182614,75
+  - identificador_f_v  [str]  ej: V
+  - comuna  [str]  ej: 11 - Laureles Estadio
+  - codigo_comuna  [int64]  ej: 11
+  - nombre_comuna  [str]  ej: Laureles Estadio
+
+Columnas de fecha detectadas: ['fecha_trafico', 'fecha']
+Columnas de hora detectadas: ['hora']
+Columnas categóricas detectadas: ['carril', 'corredor', 'sentido', 'operacion', 'categoria_1', 'categoria_2', 'categoria_3', 'tipo_subsistema', 'identificador_f_v', 'nombre_comuna']
+Columnas numéricas detectadas: ['velocidad_km_h', 'intensidad', 'ocupacion', 'longitud']
+
+Filas totales: 431,490
+
+Rango de fechas (parseadas):
+  fecha_trafico: 2020-07-01 00:00:00  →  2020-07-31 23:00:00   (fechas válidas: 74,431)
+  fecha: 2020-07-01 00:00:00  →  2020-07-31 00:00:00   (fechas válidas: 74,431)
+
+Filas por año (columna de año de la fuente):
+  2020:431,490
+
+Horas (extraídas de la 1.ª columna de fecha), conteo por hora 0–23:
+  0:3,088, 1:3,068, 2:3,089, 3:3,091, 4:3,089, 5:3,070, 6:3,053, 7:3,070, 8:3,074, 9:3,083, 10:3,113, 11:3,108, 12:3,104, 13:3,108, 14:3,111, 15:3,125, 16:3,144, 17:3,139, 18:3,141, 19:3,140, 20:3,105, 21:3,107, 22:3,107, 23:3,104
+  ¿Hay datos entre 20:00 y 5:59? SÍ
+
+Valores de 'hora': 0:17,824, 1:17,694, 10:18,049, 11:18,107, 12:18,097, 13:18,128, 14:18,158, 15:18,179, 16:18,144, 17:18,117, 18:18,109, 19:18,138, 2:17,641, 20:17,988, 21:17,970, 22:17,956, 23:17,866, 3:17,556, 4:17,917, 5:17,948, 6:17,932, 7:17,958, 8:18,001, 9:18,013
+
+Columnas categóricas (valores únicos, máx. 300):
+  carril: 553 únicos (¡tope alcanzado!)
+      XC-2-POB-10-ENT:NOR-SUR  (1,488)
+      XC-3-POB-10-ENT:NOR-SUR  (1,488)
+      XC-2-COL-C65-ENT:SUR-NOR  (1,485)
+      XC-3-COL-C65-ENT:SUR-NOR  (1,485)
+      XC-2-COL-C65-ENT:OCC-ORI  (1,457)
+      XC-3-COL-C65-ENT:OCC-ORI  (1,457)
+      XC-2-COL-C65-SAL:OCC-ORI  (1,457)
+      XC-3-COL-C65-SAL:OCC-ORI  (1,457)
+      XC-2-COL-C65-SAL:ORI-OCC  (1,456)
+      XC-3-COL-C65-SAL:ORI-OCC  (1,456)
+      XC-2-COL-C65-SAL:SUR-NOR  (1,456)
+      XC-2-COL-C65-ENT:NOR-SUR  (1,451)
+      XC-2-COL-C65-ENT:ORI-OCC  (1,448)
+      XC-3-COL-C65-ENT:ORI-OCC  (1,448)
+      XC-2-POB-4S-ENT:SUR-NOR  (1,444)
+      XC-3-AV80-35-ENT:NOR-SUR  (1,443)
+      XC-2-PUENT-4S-ENT:OCC-ORI  (1,437)
+      XC-2-ORI-52-ENT:ORI-OCC 2  (1,436)
+      XC-2-ORI-52-ENT:NOR-SUR 1  (1,434)
+      XC-2-ORI-52-ENT:ORI-OCC 1  (1,434)
+      XC-2-ORI-52-SAL:SUR-NOR 1  (1,433)
+      XC-2-ORI-41-ENT:SUR-NOR  (1,425)
+      XC-2-ORI-41-ENT:NOR-SUR  (1,425)
+      XC-2-ORI-41-ENT:ORI-OCC  (1,425)
+      XC-3-ORI-41-ENT:ORI-OCC  (1,425)
+      XC-3-ORI-41-ENT:NOR-SUR  (1,423)
+      XC-2-POB-4S-ENT:ORI-OCC  (1,422)
+      XC-3-ORI-41-ENT:SUR-NOR  (1,417)
+      XC-3-AV80-30A-ENT:NOR-SUR  (1,416)
+      XC-2-POB-4S-ENT:NOR-SUR  (1,416)
+      XC-3-AV80-65-ENT:SUR-NOR  (1,403)
+      XC-3-AV80-65-ENT:NOR-SUR  (1,403)
+      XC-2-VEGAS-10-ENT G:ORI 1  (1,391)
+      XC-3-VEGAS-10-ENT G:ORI 1  (1,391)
+      XC-2-VEGAS-10-ENT G:ORI 3  (1,391)
+      XC-2-VEGAS-10-ENT G:ORI 2  (1,388)
+      XC-2-VEGAS-10-SAL G:SUR  (1,387)
+      XC-2-ORI-52-SAL:SUR-NOR 2  (1,386)
+      XC-2-ORI-52-ENT:NOR-SUR 2  (1,384)
+      XC-2-C30-C65-SAL:OCC-ORI  (1,346)
+  corredor: 49 únicos
+      Avenida Las Vegas  (48,685)
+      Avenida El Poblado  (38,838)
+      Carrera 65  (29,560)
+      Avenida Oriental  (27,953)
+      Autopista Norte  (26,040)
+      Avenida 80  (22,392)
+      Avenida Regional  (22,278)
+      Autopista Sur  (19,213)
+      San Juan  (16,454)
+      Calle 10  (15,600)
+      Colombia  (15,320)
+      Avenida Guayabal  (14,199)
+      Avenida 33  (13,206)
+      Avenida Las Palmas  (11,885)
+      Calle 30  (9,095)
+      Avenida Bolivariana  (8,184)
+      Calle 52 - La Playa  (8,056)
+      Regional Paralela  (7,440)
+      Calle 80  (6,563)
+      Avenida Ferrocarril  (5,952)
+      Calle 41 - Los Huesos  (5,526)
+      Carrera 70  (4,218)
+      Carrera 57 - Avenida Ferrocarril  (3,631)
+      Calle 31  (3,252)
+      Loma El Tesoro  (2,976)
+      Calle 34  (2,976)
+      Calle 12 Sur  (2,976)
+      Carrera 43C  (2,976)
+      Calle 9 Sur - Los Balsos  (2,976)
+      Calle 71  (2,976)
+      Calle 55 - La Iguana  (2,974)
+      V���a al T���nel de Occidente   (2,936)
+      Calle 35  (2,788)
+      Calle 65  (2,720)
+      Transversal 78  (2,232)
+      Calle 4 Sur  (2,133)
+      Calle 3 Sur  (2,103)
+      Calle 48  (1,936)
+      Carrera 37  (1,488)
+      Calle 73  (1,488)
+  sentido: 7 únicos
+      SN  (149,580)
+      NS  (119,184)
+      WE  (68,415)
+      EW  (67,962)
+      0  (23,416)
+      WE-EW  (2,192)
+      NS-SN  (741)
+  operacion: 3 únicos
+      interrumpido  (274,876)
+      continuo  (85,425)
+      seminterrumpido  (33,639)
+  categoria_1: 1362 únicos (¡tope alcanzado!)
+      0  (32,671)
+      4  (2,884)
+      2  (2,840)
+      3  (2,793)
+      1  (2,759)
+      8  (2,722)
+      5  (2,699)
+      6  (2,661)
+      7  (2,587)
+      9  (2,528)
+      12  (2,447)
+      10  (2,389)
+      11  (2,369)
+      14  (2,313)
+      13  (2,286)
+      15  (2,241)
+      17  (2,224)
+      16  (2,175)
+      18  (2,152)
+      20  (2,104)
+      19  (2,083)
+      22  (2,024)
+      26  (1,981)
+      21  (1,945)
+      24  (1,921)
+      25  (1,914)
+      23  (1,871)
+      28  (1,866)
+      27  (1,855)
+      30  (1,731)
+      32  (1,727)
+      31  (1,701)
+      29  (1,701)
+      36  (1,691)
+      34  (1,678)
+      33  (1,660)
+      38  (1,623)
+      35  (1,613)
+      39  (1,607)
+      42  (1,583)
+  categoria_2: 367 únicos (¡tope alcanzado!)
+      0  (117,493)
+      1  (32,375)
+      2  (21,865)
+      3  (16,491)
+      4  (13,771)
+      5  (11,627)
+      6  (10,408)
+      7  (9,136)
+      8  (8,433)
+      9  (7,652)
+      10  (7,297)
+      11  (6,630)
+      12  (6,269)
+      13  (6,066)
+      14  (5,806)
+      15  (5,369)
+      16  (5,297)
+      17  (4,882)
+      18  (4,798)
+      19  (4,424)
+      20  (4,402)
+      21  (4,076)
+      22  (3,868)
+      23  (3,755)
+      24  (3,485)
+      25  (3,339)
+      26  (3,274)
+      27  (2,999)
+      28  (2,896)
+      29  (2,751)
+      30  (2,651)
+      31  (2,509)
+      32  (2,352)
+      33  (2,274)
+      34  (2,190)
+      36  (2,058)
+      35  (2,001)
+      37  (1,893)
+      38  (1,866)
+      39  (1,722)
+  categoria_3: 810 únicos (¡tope alcanzado!)
+      0  (160,832)
+      1  (34,958)
+      2  (22,354)
+      3  (16,413)
+      4  (13,561)
+      5  (11,682)
+      6  (10,578)
+      7  (9,304)
+      8  (8,586)
+      9  (7,717)
+      10  (7,204)
+      11  (6,438)
+      12  (5,937)
+      13  (5,384)
+      14  (4,912)
+      15  (4,558)
+      16  (4,085)
+      17  (3,736)
+      18  (3,531)
+      19  (3,230)
+      20  (2,889)
+      21  (2,716)
+      22  (2,599)
+      23  (2,359)
+      24  (2,168)
+      25  (1,932)
+      26  (1,886)
+      27  (1,716)
+      28  (1,623)
+      29  (1,434)
+      30  (1,348)
+      31  (1,313)
+      32  (1,223)
+      33  (1,115)
+      34  (1,094)
+      36  (992)
+      35  (979)
+      38  (913)
+      37  (898)
+      39  (881)
+  tipo_subsistema: 3 únicos
+      ARS  (219,523)
+      CCTV  (185,730)
+      FT  (26,237)
+  identificador_f_v: 2 únicos
+      V  (422,821)
+      F  (8,669)
+  nombre_comuna: 12 únicos
+      El Poblado  (114,130)
+      La Candelaria  (73,163)
+      Laureles Estadio  (72,682)
+      Sistema vial del r���o  (43,035)
+      Castilla  (34,835)
+      Belen  (24,794)
+      Guayabal  (18,309)
+      Robledo  (15,686)
+      La America  (5,645)
+      Corregimiento de San Crist���bal  (2,972)
+      Sistema vial del r������o  (1)
+      Sistema vial del r���������o  (1)
+
+Columnas numéricas (mín, máx, promedio):
+  velocidad_km_h: 0 , 254 , 27.89
+  intensidad: 0 , 6950 , 291.00
+  ocupacion: 0 , 100 , 14.93
+  longitud: 826542.625 , 836737.875 , 833943.87
+
+Nulos por columna:
+  fecha_trafico: 0 (0.0 %)
+  fecha: 0 (0.0 %)
+  hora: 0 (0.0 %)
+  ano: 0 (0.0 %)
+  carril: 0 (0.0 %)
+  corredor: 0 (0.0 %)
+  sentido: 0 (0.0 %)
+  operacion: 37,550 (8.7 %)
+  categoria_1: 0 (0.0 %)
+  categoria_2: 0 (0.0 %)
+  categoria_3: 0 (0.0 %)
+  tipo_subsistema: 0 (0.0 %)
+  identificador_f_v: 0 (0.0 %)
+  nombre_comuna: 26,237 (6.1 %)
+  velocidad_km_h: 0 (0.0 %)
+  intensidad: 0 (0.0 %)
+  ocupacion: 0 (0.0 %)
+  longitud: 0 (0.0 %)
+
+======================================================================
+FUENTE: conteo_simm
+======================================================================
+Columnas (21):
+  - DATA.CLASIFICACION1  [int64]  ej: 10
+  - DATA.CLASIFICACION2  [int64]  ej: 0
+  - DATA.CLASIFICACION3  [int64]  ej: 1
+  - FECHAHORA  [str]  ej: 2021-01-01T00:00:00.000Z
+  - HEADWAY  [int64]  ej: 27272
+  - INTENSIDAD  [int64]  ej: 11
+  - OCUPACION  [int64]  ej: 13
+  - REGISTROS  [int64]  ej: 4
+  - VELOCIDAD  [float64]  ej: 0.0
+  - INDRA.CONSECUTIVO  [int64]  ej: 359833
+  - INDRA.MENSAJE  [str]  ej: cantidad de registros 530
+  - INDRA.PARAMETRO  [float64]  ej: vacía
+  - INDRA.TIMESTAMP  [str]  ej: 2020-12-31T23:59:58.000Z
+  - INDRA.TIPO  [str]  ej: TrafficData
+  - INDRA.VERSION  [str]  ej: 1.2 (2020.10.13)
+  - ANO  [int64]  ej: 2021
+  - CORREDOR  [str]  ej: Carrera 70
+  - DISPOSITIVO  [str]  ej: CCTV
+  - LOCATION  [str]  ej: {'lon': '-75.591957', 'lat': '6.222705'}
+  - MES  [str]  ej: Enero
+  - SENTIDO  [str]  ej: SN
+
+Columnas de fecha detectadas: ['FECHAHORA', 'INDRA.TIMESTAMP']
+Columnas de hora detectadas: []
+Columnas categóricas detectadas: ['DATA.CLASIFICACION1', 'DATA.CLASIFICACION2', 'DATA.CLASIFICACION3', 'CORREDOR', 'DISPOSITIVO', 'SENTIDO']
+Columnas numéricas detectadas: ['HEADWAY', 'INTENSIDAD', 'OCUPACION', 'REGISTROS', 'VELOCIDAD']
+
+Filas totales: 3,973,596
+
+Rango de fechas (parseadas):
+  FECHAHORA: 2020-12-31 19:00:00-05:00  →  2021-01-31 18:50:00-05:00   (fechas válidas: 3,973,596)
+  INDRA.TIMESTAMP: 2020-12-31 18:59:58-05:00  →  2021-01-31 18:56:16-05:00   (fechas válidas: 3,973,596)
+
+Filas por año (columna de año de la fuente):
+  2021:3,973,596
+
+Horas (extraídas de la 1.ª columna de fecha), conteo por hora 0–23:
+  0:143,650, 1:127,147, 2:121,864, 3:125,371, 4:147,897, 5:170,557, 6:175,477, 7:176,152, 8:174,670, 9:174,827, 10:171,773, 11:174,394, 12:177,351, 13:176,959, 14:174,815, 15:175,253, 16:178,413, 17:177,407, 18:176,786, 19:177,641, 20:174,202, 21:174,736, 22:167,943, 23:158,311
+  ¿Hay datos entre 20:00 y 5:59? SÍ
+
+Columnas categóricas (valores únicos, máx. 300):
+  DATA.CLASIFICACION1: 184 únicos
+      1  (256,499)
+      2  (214,250)
+      3  (183,694)
+      4  (162,571)
+      5  (147,421)
+      6  (133,515)
+      7  (123,157)
+      8  (115,078)
+      9  (107,322)
+      10  (101,977)
+      11  (96,987)
+      12  (92,624)
+      13  (87,766)
+      14  (84,510)
+      15  (81,608)
+      16  (78,270)
+      17  (76,205)
+      18  (74,027)
+      19  (71,124)
+      20  (68,380)
+      21  (66,771)
+      22  (64,133)
+      23  (61,740)
+      24  (59,823)
+      25  (57,558)
+      26  (55,589)
+      27  (53,308)
+      28  (52,068)
+      29  (49,940)
+      30  (48,175)
+      0  (46,222)
+      31  (46,074)
+      32  (44,619)
+      33  (43,423)
+      34  (42,013)
+      35  (40,758)
+      36  (39,130)
+      37  (37,631)
+      38  (36,491)
+      39  (34,709)
+  DATA.CLASIFICACION2: 71 únicos
+      0  (1,912,206)
+      1  (662,532)
+      2  (390,005)
+      3  (253,594)
+      4  (174,126)
+      5  (123,191)
+      6  (89,067)
+      7  (66,656)
+      8  (51,146)
+      9  (40,780)
+      10  (33,276)
+      11  (28,271)
+      12  (23,570)
+      13  (20,140)
+      14  (17,267)
+      15  (14,584)
+      16  (12,508)
+      17  (10,502)
+      18  (8,960)
+      19  (7,396)
+      20  (6,165)
+      21  (4,959)
+      22  (4,172)
+      23  (3,347)
+      24  (2,708)
+      25  (2,218)
+      26  (1,828)
+      27  (1,568)
+      28  (1,174)
+      29  (1,079)
+      30  (824)
+      31  (649)
+      32  (530)
+      33  (441)
+      34  (337)
+      35  (294)
+      36  (259)
+      37  (198)
+      38  (181)
+      39  (150)
+  DATA.CLASIFICACION3: 131 únicos
+      0  (2,326,004)
+      1  (596,667)
+      2  (311,116)
+      3  (172,025)
+      4  (101,959)
+      5  (68,084)
+      6  (50,756)
+      7  (40,186)
+      8  (33,295)
+      9  (28,707)
+      10  (24,731)
+      11  (22,208)
+      12  (19,297)
+      13  (17,251)
+      14  (15,391)
+      15  (13,707)
+      16  (12,238)
+      17  (10,985)
+      18  (9,873)
+      19  (8,918)
+      20  (7,839)
+      21  (6,994)
+      22  (6,276)
+      23  (5,622)
+      24  (5,159)
+      25  (4,424)
+      26  (4,061)
+      27  (3,664)
+      28  (3,412)
+      29  (3,131)
+      30  (2,924)
+      31  (2,711)
+      32  (2,450)
+      33  (2,203)
+      34  (2,095)
+      35  (1,843)
+      36  (1,767)
+      37  (1,636)
+      38  (1,477)
+      39  (1,390)
+  CORREDOR: 49 únicos
+      Avenida Las Vegas  (405,442)
+      Avenida El Poblado  (274,042)
+      San Juan  (272,762)
+      Autopista Norte  (266,485)
+      Carrera 65  (251,473)
+      Avenida 80  (231,006)
+      Avenida Regional  (220,735)
+      Avenida Oriental  (201,161)
+      Autopista Sur  (174,806)
+      Avenida 33  (157,756)
+      Avenida Las Palmas  (105,664)
+      Avenida Guayabal  (98,698)
+      Calle 10  (96,260)
+      Colombia  (93,144)
+      Avenida Bolivariana  (85,460)
+      Calle 30  (80,642)
+      Calle 80  (75,726)
+      Calle 52 - La Playa  (61,368)
+      Avenida Ferrocarril  (49,802)
+      Regional Paralela  (49,530)
+      Carrera 70  (47,373)
+      Carrera 48  (41,420)
+      Carrera 78  (35,303)
+      Calle 71  (34,662)
+      Carrera 57 - Avenida Ferrocarril  (33,999)
+      Carrera 43A  (32,763)
+      Calle 12 Sur  (31,542)
+      Calle 65  (31,423)
+      Calle 35  (30,849)
+      Carrera 47  (30,605)
+      Calle 31  (28,365)
+      Calle 5  (27,812)
+      Carrera 43C  (27,030)
+      Loma El Tesoro  (26,875)
+      Transversal 78  (25,947)
+      Calle 55 - La Iguana  (25,520)
+      Calle 57 - Argentina  (25,446)
+      Transversal 32  (25,088)
+      Calle 34  (20,868)
+      Calle 9 Sur - Los Balsos  (19,177)
+  DISPOSITIVO: 2 únicos
+      ARS  (2,111,301)
+      CCTV  (1,862,295)
+  SENTIDO: 9 únicos
+      SN  (1,337,629)
+      NS  (984,412)
+      EW  (657,369)
+      WE  (640,775)
+      \"\"  (180,635)
+      Nor - Sur  (91,835)
+      Occ - Ori  (30,749)
+      Ori - Occ  (25,999)
+      Sur - Nor  (24,193)
+
+Columnas numéricas (mín, máx, promedio):
+  HEADWAY: 0 , 32496000 , 60853.26
+  INTENSIDAD: 0 , 331 , 25.45
+  OCUPACION: 0 , 100 , 22.42
+  REGISTROS: 1 , 5 , 3.84
+  VELOCIDAD: -1.0 , 199.0 , 28.56
+
+Nulos por columna:
+  FECHAHORA: 0 (0.0 %)
+  INDRA.TIMESTAMP: 0 (0.0 %)
+  ANO: 0 (0.0 %)
+  DATA.CLASIFICACION1: 0 (0.0 %)
+  DATA.CLASIFICACION2: 0 (0.0 %)
+  DATA.CLASIFICACION3: 0 (0.0 %)
+  CORREDOR: 0 (0.0 %)
+  DISPOSITIVO: 0 (0.0 %)
+  SENTIDO: 0 (0.0 %)
+  HEADWAY: 0 (0.0 %)
+  INTENSIDAD: 0 (0.0 %)
+  OCUPACION: 0 (0.0 %)
+  REGISTROS: 0 (0.0 %)
+  VELOCIDAD: 0 (0.0 %)
