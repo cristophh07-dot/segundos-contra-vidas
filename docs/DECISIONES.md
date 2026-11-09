@@ -6,12 +6,14 @@
 
 ## Pendientes (todavía no decidir por cuenta propia)
 
-- (ninguno por ahora)
+- **P3 · Una sola asignación a corredores.** Hay dos `asignar_corredor()`: el de `src/corredores.py` (Cristopher, D27) y el de `src/seguridad.py` (Josué). Mientras se unifican, los notebooks usan el de `src/corredores.py`. No usar las dos versiones en un mismo análisis.
+- **P4 · Alias de la Autopista Sur.** En la parte norte del tramo la vía es la Carrera 62–63, no la 50 (`docs/geometria_corredores.txt`, sección 5). No afecta la asignación (va por coordenadas). Johan lo revisa en `src/velocidad.py`.
 
 ## Decisiones tomadas
 
 | Fecha | # | Decisión | Afecta a |
 |---|---|---|---|
+| 2026-11-09 | D27 | **Geometría y asignación a corredores (`src/corredores.py`).** La geometría de cada corredor son las estaciones del SIMM cortadas al tramo de Google Traffic, ordenadas de INICIO a FIN y con los dos extremos incluidos (MULTIPOINT en `geometria_wkt`, sin cambiar el formato del catálogo). Los extremos se ubican con cruces de direcciones del ITM (Calle 65, Calle 30, Calle 12 Sur, Calle 10, Calle 44, Carrera 80; Punto Cero y Barranquilla = Calle 67), con el cruce de los ejes de dos corredores, o con la longitud del tramo de Google Traffic cuando el extremo es un sitio (Tugo, CTI, Solla, Industriales, Villanueva, Sandiego, Chuscalito). Un incidente es del corredor si está a ≤ 50 m de su geometría (30 y 100 m como sensibilidad); si queda cerca de dos corredores, va al más cercano y se marca como ambiguo. Sin coordenadas, se asigna por dirección solo en Av. 80, El Poblado y Guayabal. Los puntos muy repetidos del ITM **no** se excluyen: son intercambios viales, no relleno. Resultado: 55.832 incidentes graves a ≤ 50 m (13,9%); en 10 de 11 corredores con número propio, entre el 64% y el 94% nombran su vía. Limitación: Las Palmas cubre 3,3 de 5,95 km. Reporte: `docs/geometria_corredores.txt`. | Todos |
 | 2026-11-08 | D26 | **Backtest de la cuarentena (notebook 04):** corregida la composición de las víctimas, el exceso de muertes (O/E = 1,19; IC 0,93–1,50) no se distingue de los placebos 2015–2019 (0,89–1,20). **D19 se ajusta:** la cuarentena no se presenta como evidencia, sino como un resultado en la dirección esperada. El efecto de la velocidad sobre la letalidad entra al Monte Carlo como sensibilidad entre 0 y 2, no fijo en Nilsson. | Cristopher |
 | 2026-11-08 | D25 | **`conteo_simm` sale de `src/fuentes.py`** (cierra P1). Solo trae enero de 2021, no se usa en ningún análisis (D5) y pesa 856 MB, lo que alarga la prueba de reproducibilidad. `src/explorar_johan.py` ya no la lee. | Todos |
 | 2026-11-08 | D24 | El modelo logístico queda validado (AUC 0,76 en 2020–2021, calibrado, 353 muertos predichos contra 357 observados). Sus probabilidades se usan en el Monte Carlo para convertir incidentes graves en muertes esperadas según el perfil de las víctimas de cada corredor. | Cristopher |
