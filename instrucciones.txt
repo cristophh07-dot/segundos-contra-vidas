@@ -1,6 +1,8 @@
 INSTRUCCIONES - Segundos contra vidas
 
-Equipo: [nombre del equipo] · Hackathon de Datos 2026
+Equipo: [nombre del equipo] · Hackathon de Datos 2026 · ITM
+Integrantes: Cristopher Corrales Boada (líder), Josué y Johan
+Categoría Interna · Modalidad Análisis de datos (notebook reproducible) · Temática Transporte y movilidad
 
 1. QUÉ ES
    [Por completar al final: qué hace el notebook, en dos líneas]
@@ -9,22 +11,58 @@ Equipo: [nombre del equipo] · Hackathon de Datos 2026
    [enlace de Colab, o "No aplica"]
 
 3. ENTORNO
-   Python 3.11 · dependencias con versión exacta en requirements.txt
+   Python 3.13 · dependencias con versión exacta en requirements.txt
+   Probado en Windows con Anaconda.
 
 4. EJECUTARLO
    pip install -r requirements.txt
    python -m src.verificar_fuentes
    jupyter notebook notebooks/proyecto_final.ipynb
-   (Ejecutar todas las celdas. Los datos se descargan solos desde sus URLs la primera vez.)
+   (Ejecutar todas las celdas. Los datos se descargan solos desde sus URLs la primera vez
+   y quedan en data/cache/; la primera ejecución descarga unos 370 MB.)
 
 5. QUÉ DEBE VER
    [Por completar al final: hallazgo principal con cifra]
 
 6. DATOS Y FUENTES
-   [Por completar: archivo · conjunto · enlace · licencia, a partir de src/fuentes.py]
+   Todas las URLs están en src/fuentes.py y se leen solo con src.descarga.leer("<clave>").
+   Ningún archivo se descarga ni se edita a mano.
+
+   Clave               | Conjunto                                              | Años usados              | Licencia
+   --------------------|-------------------------------------------------------|--------------------------|------------------
+   incidentes_itm      | Road Traffic Fatalities in Medellín 2008–2025 (ITM)   | 2008 – ago. 2025         | CC BY 4.0
+                       | Arango, Quiceno y Correa (2026), Mendeley Data, DOI 10.17632/r6g5dfnpgh.1
+                       | https://data.mendeley.com/datasets/r6g5dfnpgh/1
+   victimas_medata     | MEData – Víctimas en incidentes viales                | ene. 2014 – sep. 2021    | CC BY-SA 4.0
+                       | https://medata.app.medellin.gov.co/dataset/1-023-25-000360
+   motos_medata        | MEData – Incidentes viales con motos                  | 2015 – 2021              | CC BY-SA 4.0
+                       | https://medata.app.medellin.gov.co/dataset/1-023-25-000277
+   incidentes_medata   | MEData – Incidentes viales (respaldo)                 | 2014 – 2020              | CC BY-SA 4.0
+                       | https://medata.app.medellin.gov.co/dataset/1-023-25-000094
+   mortalidad_distrito | Alcaldía de Medellín – Observatorio de Movilidad,     | 2019 – 2024              | Uso para análisis y
+                       | capa Mortalidad (servicio ArcGIS)                     |                          | planificación
+                       | https://www.medellin.gov.co/servidormapas/rest/services/transporte/VM_Mortalidad/MapServer/0
+   velocidad_gt        | MEData – Velocidad y tiempo de viaje GT (SIMM)        | feb. 2017 – dic. 2020    | CC BY-SA 4.0
+                       | https://medata.app.medellin.gov.co/dataset/1-023-25-000287
+   velocidad_simm      | MEData – Velocidad e intensidad vehicular (SIMM)      | jul. – ago. 2020         | CC BY-SA 4.0
+                       | https://medata.app.medellin.gov.co/dataset/1-023-25-000296
+
+   Fuente de todos los conjuntos MEData: Secretaría de Movilidad de Medellín.
+   Las decisiones sobre qué datos se usan y cómo se limpian están en docs/DECISIONES.md.
 
 7. USO DE IA
-   [Por completar: herramienta y para qué]
+   Herramienta: Claude (Anthropic), en la interfaz de chat.
+   Para qué se usó:
+   - Proponer y depurar código (lectura de fuentes, limpieza, modelos y gráficas).
+   - Explicar pruebas estadísticas e interpretar resultados ya calculados.
+   - Ordenar el plan de trabajo, las decisiones y los mensajes del equipo.
+   Cómo se verificó:
+   - Todo el código se ejecutó en los computadores del equipo con los datos reales,
+     descargados desde las URLs de src/fuentes.py. Las cifras salen de esas ejecuciones.
+   - Los datos sintéticos solo se usaron para probar que el código corre; ningún resultado
+     del proyecto sale de ellos.
+   - Las decisiones del proyecto las tomó el equipo (docs/DECISIONES.md).
+   Detalle por integrante: docs/uso_ia_johan.md [y los de Cristopher y Josué, por completar].
 
 8. CONTACTO
    Cristopher Corrales Boada · cristophh.07@gmail.com

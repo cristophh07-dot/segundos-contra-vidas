@@ -6,6 +6,7 @@ Reglas:
 - Nadie escribe URLs sueltas en notebooks: todo se lee con src.descarga.leer("<clave>").
 - Las URLs se verificaron el 4 de noviembre de 2026 (respondían 200).
 - "tamano_mb" es aproximado, para saber cuánto tarda la primera descarga.
+- conteo_simm (Conteo Vehicular, 856 MB, solo ene. 2021) se retiró: no se usa en el análisis (D5, D25).
 """
 
 FUENTES = {
@@ -91,18 +92,5 @@ FUENTES = {
         "pagina": "https://medata.app.medellin.gov.co/dataset/1-023-25-000296",
         "licencia": "CC BY-SA 4.0",
         "anios": "desde mar. 2017 (modificado 10-08-2021)",
-    },
-    "conteo_simm": {
-        # Conteos de las cámaras ARS, CCTV y de fotodetección del SIMM, con VELOCIDAD e INTENSIDAD por dispositivo.
-        # Datos desde enero de 2021: es la única fuente de velocidad posterior a 2020.
-        # ¡PESA 856 MB! Leer por partes: leer("conteo_simm", usecols=[...], chunksize=500_000).
-        "url": "https://medata.app.medellin.gov.co/sites/default/files/resources/c55e39ca070041d812721588475a0a90_1743010250/simmtrafficdata.csv",
-        "diccionario": "https://medata.app.medellin.gov.co/sites/default/files/distribution/1-023-25-000300/simmtraffic.json",
-        "formato": "csv",
-        "tamano_mb": 856,
-        "fuente": "MEData – Conteo Vehicular (Simmtrafficdata) (SIMM, Secretaría de Movilidad de Medellín)",
-        "pagina": "https://medata.app.medellin.gov.co/dataset/1-023-25-000300",
-        "licencia": "CC BY-SA 4.0 según los metadatos (la página del dataset muestra CC BY 4.0)",
-        "anios": "desde ene. 2021 (verificar año máximo)",
     },
 }

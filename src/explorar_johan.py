@@ -11,7 +11,7 @@ import pandas as pd
 
 from src.descarga import leer
 
-CLAVES = ["velocidad_gt", "velocidad_simm", "conteo_simm"]
+CLAVES = ["velocidad_gt", "velocidad_simm"]  # conteo_simm se retiró de fuentes.py (D25)
 SALIDA = pathlib.Path("docs/exploracion_johan.txt")
 PISTAS_FECHA = ("fecha", "date", "time", "inicio", "fin")
 PISTAS_HORA = ("hora", "hour")
