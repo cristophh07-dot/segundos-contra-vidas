@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import pathlib
+import re
+import unicodedata
 
 import numpy as np
 import pandas as pd
@@ -14,9 +16,44 @@ PROCESSED.mkdir(parents=True, exist_ok=True)
 LAT_MIN, LAT_MAX = 6.1, 6.4
 LON_MIN, LON_MAX = -75.75, -75.45
 
+# Valores de relleno que cuentan como faltante (D10)
+FALTANTES = {"", "N/D", "SIN INF", "SIN INFORMACION", "SIN DATO", "NAN", "NONE", "0"}
 
+COLS_INC = ["incidente_id", "fuente", "fecha", "hora", "anio", "mes", "dia_semana", "gravedad",
+            "clase", "hay_moto", "hay_peaton", "lat", "lon", "direccion_normalizada", "comuna",
+            "barrio", "corredor_id", "metodo_asignacion"]
+COLS_VIC = ["incidente_id", "fecha", "hora", "gravedad_victima", "condicion", "edad", "sexo",
+            "comuna", "lat", "lon", "corredor_id"]
+COLS_MOR = ["id", "fecha", "hora", "clase", "edad", "sexo", "comuna", "lat", "lon", "corredor_id"]
+
+_ABREV = [
+    (r"\b(CARRERA|KRA|CRA|CARR)\b", "CR"),
+    (r"\b(CALLE|CLL)\b", "CL"),
+    (r"\b(AVENIDA|AVE)\b", "AV"),
+    (r"\b(TRANSVERSAL|TRANSV|TRV)\b", "TV"),
+    (r"\b(DIAGONAL|DIAG)\b", "DG"),
+]
+
+
+# ---------------------------------------------------------------- utilidades
 def sin_tildes(s: pd.Series) -> pd.Series:
     return s.astype("string").str.normalize("NFKD").str.encode("ascii", "ignore").str.decode("ascii")
+
+
+def _col(df: pd.DataFrame, nombre: str) -> pd.Series:
+    """Busca una columna ignorando tildes, mayúsculas y espacios (p. ej. 'Año' -> 'ANO')."""
+    for c in df.columns:
+        k = unicodedata.normalize("NFKD", str(c)).encode("ascii", "ignore").decode().upper()
+        if re.sub(r"[^A-Z0-9_]", "", k) == nombre:
+            return df[c]
+    raise KeyError(nombre)
+
+
+def texto_limpio(s: pd.Series) -> pd.Series:
+    """Texto sin espacios sobrantes; N/D, Sin inf, 0, etc. pasan a vacío."""
+    t = s.astype("string").str.strip()
+    clave = sin_tildes(t).str.upper()
+    return t.where(~clave.isin(FALTANTES))
 
 
 def a_fecha(s: pd.Series) -> pd.Series:
@@ -30,10 +67,25 @@ def a_hora(s: pd.Series) -> pd.Series:
     return h.where(h.between(0, 23)).astype("Int64")
 
 
+def a_numero(s: pd.Series) -> pd.Series:
+    """Número con coma o punto decimal -> float."""
+    return pd.to_numeric(s.astype("string").str.replace(",", ".", regex=False), errors="coerce")
+
+
 def limpiar_coords(lat: pd.Series, lon: pd.Series):
     """Fuera de Medellín o vacías -> vacías (la fila NO se borra)."""
     ok = lat.between(LAT_MIN, LAT_MAX) & lon.between(LON_MIN, LON_MAX)
     return lat.where(ok), lon.where(ok)
+
+
+def normalizar_direccion(s: pd.Series) -> pd.Series:
+    t = sin_tildes(s).str.upper().str.strip()
+    t = t.where(~t.str.contains("999", na=False))          # 'CALLE 999 CON CARRERA 999'
+    t = t.where(~t.isin(list(FALTANTES)))
+    for patron, abrev in _ABREV:
+        t = t.str.replace(patron, abrev, regex=True)
+    t = t.str.replace(r"\s+", " ", regex=True).str.strip()
+    return t.where(t.notna() & (t != ""))
 
 
 def mapear_clase(s: pd.Series) -> pd.Series:
@@ -48,40 +100,155 @@ def mapear_clase(s: pd.Series) -> pd.Series:
     return out
 
 
+def mapear_gravedad(s: pd.Series) -> pd.Series:
+    t = sin_tildes(s).str.upper().str.strip()
+    out = pd.Series(np.nan, index=s.index, dtype="object")
+    out[t.str.contains("SOLO", na=False)] = "solo_danos"
+    out[t.str.contains("HERID", na=False)] = "herido"
+    out[t.str.contains("MUERT", na=False)] = "muerto"
+    return out
+
+
+def mapear_condicion(s: pd.Series) -> pd.Series:
+    t = sin_tildes(s).str.upper().str.strip()
+    out = pd.Series("otro", index=s.index, dtype="object")
+    # El orden importa: 'MOTOCICLISTA' contiene 'CICLISTA'
+    out[t.str.contains("CICLISTA", na=False)] = "ciclista"
+    out[t.str.contains("MOTOCICLISTA", na=False)] = "conductor_moto"
+    out[t.str.contains("ACOMPA", na=False)] = "parrillero"
+    out[t.str.contains("PEATON", na=False)] = "peaton"
+    out[t.str.contains("PASAJERO", na=False)] = "pasajero"
+    out[t.str.startswith("CONDUCTOR", na=False)] = "conductor_carro"
+    out[t.isna()] = np.nan
+    return out
+
+
+def limpiar_sexo(s: pd.Series) -> pd.Series:
+    t = sin_tildes(s).str.upper().str.strip().str[:1]
+    return t.where(t.isin(["F", "M"]))
+
+
+def limpiar_edad(s: pd.Series) -> pd.Series:
+    e = pd.to_numeric(s, errors="coerce")
+    return e.where(e.between(0, 110)).astype("Int64")
+
+
+# ---------------------------------------------------------------- incidentes
+def incidentes_limpios() -> pd.DataFrame:
+    raw = leer("incidentes_itm", sheet_name="BD")
+    n0 = len(raw)
+
+    fecha = pd.to_datetime(raw["FECHA_INCIDENTE"], errors="coerce")
+    lat, lon = limpiar_coords(pd.to_numeric(raw["Latitud"], errors="coerce"),
+                              pd.to_numeric(raw["Longitud"], errors="coerce"))
+    clase = mapear_clase(raw["CLASE_INCIDENTE"])
+    hay_moto = pd.Series(pd.NA, index=raw.index, dtype="Int64")
+    hay_peaton = pd.Series(pd.NA, index=raw.index, dtype="Int64").mask(clase == "atropello", 1)
+
+    df = pd.DataFrame({
+        "incidente_id": raw["LLAVE"].astype("string"),
+        "fuente": "itm",
+        "fecha": fecha,
+        "hora": a_hora(raw["HORA_INCIDENTE"]),
+        "anio": fecha.dt.year.astype("Int64"),
+        "mes": fecha.dt.month.astype("Int64"),
+        "dia_semana": fecha.dt.dayofweek.astype("Int64"),
+        "gravedad": mapear_gravedad(raw["GRAVEDAD_INCIDENTE"]),
+        "clase": clase,
+        "hay_moto": hay_moto,
+        "hay_peaton": hay_peaton,
+        "lat": lat,
+        "lon": lon,
+        "direccion_normalizada": normalizar_direccion(raw["DIRECCION_INTERPOLADA"]),
+        "comuna": texto_limpio(raw["Comuna Planeacion"]),
+        "barrio": texto_limpio(raw["Barrio Planeacion"]),
+        "corredor_id": pd.Series(np.nan, index=raw.index, dtype="object"),
+        "metodo_asignacion": "sin_asignar",
+    })
+
+    df = df[df["fecha"].notna() & df["gravedad"].notna()].copy()
+    print(f"incidentes_limpios: {n0} leídas | eliminadas (sin fecha o sin gravedad): {n0 - len(df)} | "
+          f"final: {len(df)} | sin coordenadas: {int(df['lat'].isna().sum())} | "
+          f"sin dirección: {int(df['direccion_normalizada'].isna().sum())}")
+
+    df["fecha"] = df["fecha"].dt.strftime("%Y-%m-%d")
+    df = df[COLS_INC]
+    df.to_csv(PROCESSED / "incidentes_limpios.csv", index=False, encoding="utf-8")
+    return df
+
+
+# ---------------------------------------------------------------- víctimas
+def victimas_limpias() -> pd.DataFrame:
+    raw = leer("victimas_medata")
+    n0 = len(raw)
+
+    # D12: solo 235.843 filas son reales; el resto está vacío
+    raw = raw[pd.to_numeric(_col(raw, "ANO"), errors="coerce").notna()].copy()
+    n_vacias = n0 - len(raw)
+
+    fecha = a_fecha(raw["Fecha_incidente"])
+    lat, lon = limpiar_coords(a_numero(raw["Latitud"]), a_numero(raw["Longitud"]))
+    g = sin_tildes(raw["Gravedad_victima"]).str.upper()
+    gravedad = pd.Series(np.nan, index=raw.index, dtype="object")
+    gravedad[g.str.contains("HERID", na=False)] = "herido"
+    gravedad[g.str.contains("MUERT", na=False)] = "muerto"
+    comuna = texto_limpio(raw["Comuna"]).str.replace(r"^\d+\s*-\s*", "", regex=True)
+
+    df = pd.DataFrame({
+        "incidente_id": pd.Series(pd.NA, index=raw.index, dtype="string"),  # no se une con el ITM (D12)
+        "fecha": fecha,
+        "hora": a_hora(raw["Hora_incidente"]),
+        "gravedad_victima": gravedad,
+        "condicion": mapear_condicion(raw["Condicion"]),
+        "edad": limpiar_edad(raw["Edad"]),
+        "sexo": limpiar_sexo(raw["Sexo"]),
+        "comuna": comuna,
+        "lat": lat,
+        "lon": lon,
+        "corredor_id": pd.Series(np.nan, index=raw.index, dtype="object"),
+    })
+
+    n1 = len(df)
+    df = df[df["fecha"].notna() & df["gravedad_victima"].notna()].copy()
+    print(f"victimas_limpias: {n0} leídas | filas vacías eliminadas: {n_vacias} | "
+          f"sin fecha o gravedad eliminadas: {n1 - len(df)} | final: {len(df)} | "
+          f"sin coordenadas: {int(df['lat'].isna().sum())}")
+
+    df["fecha"] = df["fecha"].dt.strftime("%Y-%m-%d")
+    df = df[COLS_VIC]
+    df.to_csv(PROCESSED / "victimas_limpias.csv", index=False, encoding="utf-8")
+    return df
+
+
+# ---------------------------------------------------------------- mortalidad
 def mortalidad_distrito() -> pd.DataFrame:
     raw = leer("mortalidad_distrito")
-    lat = pd.to_numeric(raw["lat_wgs84"], errors="coerce")
-    lon = pd.to_numeric(raw["lon_wgs84"], errors="coerce")
-    lat, lon = limpiar_coords(lat, lon)
-
-    edad = pd.to_numeric(raw["edad_fallecido"], errors="coerce")
-    edad = edad.where(edad.between(0, 110)).astype("Int64")
-
-    sexo = raw["sexo_fallecido"].astype("string").str.strip().str.upper().str[:1]
-    sexo = sexo.where(sexo.isin(["F", "M"]))
+    lat, lon = limpiar_coords(pd.to_numeric(raw["lat_wgs84"], errors="coerce"),
+                              pd.to_numeric(raw["lon_wgs84"], errors="coerce"))
+    comuna = texto_limpio(raw["nom_comuna"]).replace({"La Calendaria": "La Candelaria"})
 
     df = pd.DataFrame({
         "id": raw["id"].astype("string").str.strip(),
         "fecha": a_fecha(raw["fecha_ocurrencia"]),
         "hora": a_hora(raw["hora_ocurrencia"]),
         "clase": mapear_clase(raw["clase"]),
-        "edad": edad,
-        "sexo": sexo,
-        "comuna": raw["nom_comuna"].astype("string").str.strip(),
+        "edad": limpiar_edad(raw["edad_fallecido"]),
+        "sexo": limpiar_sexo(raw["sexo_fallecido"]),
+        "comuna": comuna,
         "lat": lat,
         "lon": lon,
         "corredor_id": pd.Series(np.nan, index=raw.index, dtype="object"),
     })
 
     n0 = len(df)
-    df = df.drop_duplicates()
+    df = df.drop_duplicates()   # un mismo id puede tener varios fallecidos distintos
     n_dup = n0 - len(df)
     n1 = len(df)
     df = df[df["fecha"].notna()].copy()
-    n_sin_fecha = n1 - len(df)
-    print(f"mortalidad_distrito: {n0} filas leídas | duplicados eliminados: {n_dup} | "
-          f"sin fecha válida eliminados: {n_sin_fecha} | final: {len(df)}")
+    print(f"mortalidad_distrito: {n0} filas leídas | duplicados exactos eliminados: {n_dup} | "
+          f"sin fecha válida eliminados: {n1 - len(df)} | final: {len(df)}")
 
     df["fecha"] = df["fecha"].dt.strftime("%Y-%m-%d")
+    df = df[COLS_MOR]
     df.to_csv(PROCESSED / "mortalidad_distrito.csv", index=False, encoding="utf-8")
     return df

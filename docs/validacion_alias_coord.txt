@@ -1,0 +1,133 @@
+Sensores únicos: 553 · dentro de Medellín tras convertir (EPSG:3116): 100%
+Columnas usadas de victimas_medata: ['Direccion_incidente', 'Latitud', 'Longitud']
+Víctimas con coordenadas dentro de Medellín: 212,883
+
+== AV_80 (alias actual: CR 80|CARRERA 80|AV 80|AVENIDA 80) (SIMM: 'Avenida 80') · sensores: 35
+   víctimas a menos de 100 m de algún sensor: 2,631
+   CR 80: 1,579 (60%)  <--
+   CL 65: 688 (26%)
+   CR 81: 408 (16%)
+   CL 76: 248 (9%)
+   CL 48: 230 (9%)
+   CL 9: 152 (6%)
+   ejemplos: DG 80 CL 76 | CR 80 CL 65 | CR 81 CL 36 | CR 80 CL 47 D
+
+== AV_33 (alias actual: CL 33|CALLE 33|AV 33|AVENIDA 33) (SIMM: 'Avenida 33') · sensores: 22
+   víctimas a menos de 100 m de algún sensor: 1,467
+   CL 37: 659 (45%)  <--
+   CL 33: 419 (29%)
+   CR 55: 283 (19%)
+   CR 50: 170 (12%)
+   CR 51: 159 (11%)
+   CR 76: 148 (10%)
+   ejemplos: CR 52 CL 37 | CL 37 CR 50 | DG 74 B CL 32 F | CL 37 CR 52
+
+== CL_30 (alias actual: CL 30|CALLE 30) (SIMM: 'Calle 30') · sensores: 12
+   víctimas a menos de 100 m de algún sensor: 1,062
+   CL 30: 694 (65%)  <--
+   CR 65: 346 (33%)  <--
+   CR 66 B: 319 (30%)  <--
+   CL 29: 109 (10%)
+   CL 30 A: 107 (10%)
+   CR 44: 99 (9%)
+   ejemplos: CR 44 CL 39 | CL 30 A CR 66 | CL 30 CR 66 B | CR 65 CL 29 D
+
+== AV_POBLADO (alias actual: CR 43 A|CARRERA 43 A|CARRERA 43A) (SIMM: 'Avenida El Poblado') · sensores: 42
+   víctimas a menos de 100 m de algún sensor: 984
+   CR 43 A: 705 (72%)  <--
+   CL 10: 200 (20%)
+   CL 31: 177 (18%)
+   CL 14: 114 (12%)
+   CR 43: 105 (11%)
+   CL 25 A: 87 (9%)
+   ejemplos: CR 43 A CL 9 | CL 12 SUR CR 43 A | CR 43 A CL 31 | CR 43 A CL 12 SUR
+
+== AV_SAN_JUAN (alias actual: CL 44|CALLE 44) (SIMM: 'San Juan') · sensores: 25
+   víctimas a menos de 100 m de algún sensor: 1,627
+   CL 44: 1,426 (88%)  <--
+   CR 65: 289 (18%)
+   CR 70: 268 (16%)
+   CR 90: 211 (13%)
+   CR 59: 189 (12%)
+   CR 60: 134 (8%)
+   ejemplos: CL 44 CR 70 | CL 44 CR 90 | CR 65 CL 43 A | CL 44 CR 89
+
+== AV_ORIENTAL (alias actual: CR 46|CARRERA 46) (SIMM: 'Avenida Oriental') · sensores: 32
+   víctimas a menos de 100 m de algún sensor: 1,971
+   CR 46: 1,322 (67%)  <--
+   CL 52: 437 (22%)
+   CL 57: 412 (21%)
+   CL 58: 383 (19%)
+   CR 48: 312 (16%)
+   CL 41: 274 (14%)
+   ejemplos: CL 52 CR 46 | CR 46 CL 50 | CL 58 CR 47 | CR 46 CL 57
+
+== AV_GUAYABAL (alias actual: CR 52|CARRERA 52) (SIMM: 'Avenida Guayabal') · sensores: 20
+   víctimas a menos de 100 m de algún sensor: 1,268
+   CR 52: 1,179 (93%)  <--
+   CL 2: 182 (14%)
+   CL 1: 174 (14%)
+   CL 12: 158 (12%)
+   CL 6: 157 (12%)
+   CL 20: 120 (9%)
+   ejemplos: CR 52 CL 7 SUR | CR 52 CL 12 SUR | CR 52 CL 1 | CR 52 CL 2 SUR
+
+== AUT_NORTE (alias actual: CR 64 C|CARRERA 64 C|CARRERA 64C) (SIMM: 'Autopista Norte') · sensores: 35
+   víctimas a menos de 100 m de algún sensor: 1,813
+   CR 64 C: 1,414 (78%)  <--
+   CL 104: 465 (26%)
+   CL 103: 248 (14%)
+   CR 65: 243 (13%)
+   CL 92: 152 (8%)
+   CL 97 A: 114 (6%)
+   ejemplos: CR 64 C CL 97 A | CR 64 C CL 104 | CL 104 CR 64 C | CR 64 C CL 110
+
+== AUT_SUR (alias actual: CR 48|CARRERA 48) (SIMM: 'Autopista Sur') · sensores: 26
+   víctimas a menos de 100 m de algún sensor: 1,295
+   CR 50: 935 (72%)  <--
+   CL 4: 345 (27%)
+   CL 14: 338 (26%)
+   CR 63: 185 (14%)
+   CL 49: 124 (10%)
+   CL 49 A: 68 (5%)
+   ejemplos: CR 50 CL 4 | CR 50 CL 6 SUR | CR 50 CL 4 SUR | CR 50 CL 14
+
+== AV_REGIONAL (alias actual: CR 55|CARRERA 55) (SIMM: 'Avenida Regional') · sensores: 30
+   víctimas a menos de 100 m de algún sensor: 1,436
+   CR 62: 461 (32%)  <--
+   CL 58: 394 (27%)
+   CR 49: 378 (26%)
+   CR 50: 297 (21%)
+   CL 16: 174 (12%)
+   CL 4: 106 (7%)
+   ejemplos: CR 49 CL 18 | CR 49 CL 16 A | CL 58 CR 62 | CR 62 CL 58
+
+== AV_FERROCARRIL (alias actual: CR 57|CARRERA 57) (SIMM: 'Avenida Ferrocarril') · sensores: 8
+   víctimas a menos de 100 m de algún sensor: 922
+   CR 57: 775 (84%)  <--
+   CL 50: 265 (29%)
+   CL 46: 239 (26%)
+   CL 48: 200 (22%)
+   CL 51: 153 (17%)
+   CR 60: 73 (8%)
+   ejemplos: CR 57 CL 48 | CR 57 CL 46 | CL 50 CR 57 | CR 57 CL 52
+
+== AV_PALMAS (alias actual: LAS PALMAS) (SIMM: 'Avenida Las Palmas') · sensores: 16
+   víctimas a menos de 100 m de algún sensor: 385
+   CR 38: 151 (39%)  <--
+   CL 18: 118 (31%)  <--
+   CL 19: 106 (28%)
+   CL 16: 80 (21%)
+   CR 35: 52 (14%)
+   CR 42: 43 (11%)
+   ejemplos: CL 18 CR 34 | CL 20 B CR 38 | CR 38 CL 18 | CR 38 CL 19
+
+== LAS_VEGAS (fuera de los 12, para contraste) (SIMM: 'Avenida Las Vegas') · sensores: 55
+   víctimas a menos de 100 m de algún sensor: 1,246
+   CR 48: 979 (79%)  <--
+   CL 10: 427 (34%)  <--
+   CL 7: 311 (25%)
+   CR 49: 202 (16%)
+   CL 24: 114 (9%)
+   CL 16: 108 (9%)
+   ejemplos: CR 48 CL 17 | CR 48 CL 16 | CR 48 CL 10 | CR 48 CL 19 A
