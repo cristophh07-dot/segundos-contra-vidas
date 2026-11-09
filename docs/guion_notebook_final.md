@@ -92,11 +92,11 @@ En Medellín no hay una sola víctima, hay dos: **el peatón y el motociclista**
 ### Cierre del Acto II · Dos problemas, dos medidas
 | Problema | Por qué muere | Medida | Quién lo probó | Resultado |
 |---|---|---|---|---|
-| **El peatón** (y el ciclista y los mayores) | Por gravedad: el impacto llega al cuerpo sin protección | **Bajar la velocidad** | Bogotá (2018) | Muertes −32% en los corredores intervenidos |
-| **La moto** | Por volumen: está en 8 de cada 10 incidentes graves | **Separarla del tráfico** | Malasia (carril en la F02) | Entre 25% y 39% menos accidentes de moto |
+| **El peatón** (y el ciclista y los mayores) | Por gravedad: el impacto llega al cuerpo sin protección | **Bajar la velocidad** | Bogotá (2018) | Muertes entre −22% y −37% en las avenidas intervenidas |
+| **La moto** | Por volumen: está en 8 de cada 10 incidentes graves | **Separarla del tráfico** | Malasia (carril en la F02) | Entre 25% y 34% menos accidentes de moto |
 
 - **Frase de cierre:** *"Medellín no tiene que inventar nada: tiene que decidir dónde aplicar lo que ya funcionó."*
-- **Pendiente:** Johan verifica las cifras de Bogotá y Malasia en `docs/referentes.md`. Sin fuente confirmada no van en el notebook.
+- **Fuentes:** `docs/referentes.md` (verificadas, D31). Bogotá: Secretaría de Movilidad y Global Road Safety Facility; Malasia: Radin Umar, Mackay y Hills (1995).
 - → *Pero, ¿cuánto pesa la velocidad en Medellín, y dónde se va rápido?*
 
 ---
@@ -125,7 +125,7 @@ En Medellín no hay una sola víctima, hay dos: **el peatón y el motociclista**
 
 ### Paso 8 · Primera vez: más velocidad, más choques
 - **Mensaje:** *Si la velocidad de un corredor sube 10%, los incidentes graves suben X%.* (notebook 03)
-- **Gráfica:** el exponente de Medellín con su intervalo, junto al de Nilsson y el SWOV.
+- **Gráfica:** el exponente de Medellín con su intervalo, junto al de la literatura (Elvik 2009 para vías urbanas y Nilsson clásico).
 - **Texto:** sin la palabra "exponente" hasta el final: *"comparamos el mismo corredor en horas más rápidas y más lentas, con el mismo tráfico"*. Referencia: según Nilsson, +10% de velocidad trae +21% de incidentes con heridos.
 - **Dos versiones del texto, según el resultado:**
   - Si sale parecido a Nilsson: *"Medellín se comporta como dice la literatura."*
@@ -143,7 +143,7 @@ En Medellín no hay una sola víctima, hay dos: **el peatón y el motociclista**
   - La literatura predecía +70%. Solo en los peatones el resultado es compatible con ella: la velocidad pesa más sobre los más vulnerables (Acto II).
   - **El total de muertos cayó 40% porque hubo menos viajes:** cuánta gente está expuesta pesa tanto como la velocidad. Es el puente hacia el carril de motos.
 - **Por qué da credibilidad:** pusimos a prueba nuestra propia hipótesis y la contamos tal como salió.
-- **Decisión (recuadro):** no se copia el número de la literatura; las vidas salvadas se calculan con un rango entre nuestros datos y Nilsson (D26).
+- **Decisión (recuadro):** no se copia el número de la literatura; las vidas salvadas se calculan con un rango entre nuestros datos y la literatura para vías urbanas (Elvik 2009), con Nilsson como sensibilidad (D26, D28, D31).
 - → *Con todo esto, ¿cuántas vidas se salvarían, y a qué costo?*
 
 ---
@@ -167,7 +167,7 @@ En Medellín no hay una sola víctima, hay dos: **el peatón y el motociclista**
 - **Texto:**
   - El método, en una frase: *"repetimos el cálculo 10.000 veces con todos los valores posibles de lo que no sabemos con exactitud, y nos quedamos con el rango"*.
   - De las vidas salvadas, cuántas serían peatones y cuántas motociclistas (modelo logístico, D24).
-  - **Prueba de sensatez:** comparar la reducción simulada con el −32% de Bogotá.
+  - **Prueba de sensatez:** comparar la reducción simulada con el −22% a −37% de Bogotá.
 - **El carril de motos no cuesta segundos:** su costo es de espacio e infraestructura, que no se puede medir con estos datos. Sus puntos van marcados aparte, sin costo en tiempo.
 - **Nota técnica (plegable):** entradas del Monte Carlo (exponente del paso 8, rango 0–2 del paso 9, velocidad registro por registro, muertos del Distrito por corredor, rangos de Bogotá y Malasia) y sensibilidad con tope de 40 km/h.
 - ⏳ Monte Carlo. Necesita el exponente, `costo_tiempo_escenarios()` y `riesgo_motos_corredor()` (Johan), los muertos por corredor (Josué) y los referentes verificados.
