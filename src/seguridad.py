@@ -279,3 +279,151 @@ def limpiar_itm(umbral_relleno: int = 100) -> pd.DataFrame:
 
     df.to_csv(PROCESSED / "incidentes_graves_itm.csv", index=False, encoding="utf-8")
     return df
+
+
+# ---------------------------------------------------------------- corredores
+CRS_METROS = 3116          # MAGNA-SIRGAS / Colombia Bogotá, en metros
+RADIOS = (30, 50, 100)     # metros; el oficial es 50
+CORREDORES_COORD = ["regional", "autopista_norte", "las_palmas", "autopista_sur",
+                    "calle_30", "ferrocarril", "oriental"]   # AJUSTAR a los corredor_id reales
+
+
+def _lineas_corredor(geometria: pd.DataFrame) -> dict:
+    """geometria: columnas corredor_id y geometria_wkt (MULTIPOINT ordenado) -> LineString en metros."""
+    import geopandas as gpd
+    from shapely import wkt
+    from shapely.geometry import LineString
+
+    lineas = {}
+    for cid, w in zip(geometria["corredor_id"], geometria["geometria_wkt"]):
+        g = wkt.loads(w)
+        pts = [(p.x, p.y) for p in g.geoms] if g.geom_type == "MultiPoint" else list(g.coords)
+        lineas[cid] = LineString(pts) if len(pts) > 1 else g
+    serie = gpd.GeoSeries(lineas, crs=4326).to_crs(CRS_METROS)
+    return dict(serie.items())
+
+
+def _asignar_por_coordenadas(df, geometria, lat="lat", lon="lon"):
+    import geopandas as gpd
+    import shapely
+
+    lineas = _lineas_corredor(geometria)
+    ok = df[lat].notna() & df[lon].notna()
+    pts = gpd.GeoSeries(gpd.points_from_xy(df.loc[ok, lon], df.loc[ok, lat]),
+                        crs=4326).to_crs(CRS_METROS).values
+    D = pd.DataFrame({cid: shapely.distance(pts, ln) for cid, ln in lineas.items()},
+                     index=df.index[ok])
+    mas_cercano, dmin = D.idxmin(axis=1), D.min(axis=1)
+
+    print("Asignación por coordenadas (distancia al corredor más cercano):")
+    for r in RADIOS:
+        print(f"  a {r:>3} m o menos: {int((dmin <= r).sum())} de {int(ok.sum())}")
+    ambiguos = int(((D <= 50).sum(axis=1) >= 2).sum())
+    print(f"  cerca (≤ 50 m) de dos o más corredores: {ambiguos} (van al más cercano)")
+
+    corredor = pd.Series(np.nan, index=df.index, dtype="object")
+    corredor[ok] = mas_cercano.where(dmin <= 50)
+    return corredor
+
+
+def asignar_corredor(df: pd.DataFrame, geometria: pd.DataFrame | None = None,
+                     direccion: pd.Series | None = None,
+                     lat: str = "lat", lon: str = "lon") -> pd.DataFrame:
+    """Devuelve df con corredor_id y metodo_asignacion ('coordenadas', 'direccion' o 'sin_asignar').
+    - geometria: tabla con corredor_id y geometria_wkt (MULTIPOINT). Si es None, solo asigna por dirección.
+    - direccion: serie normalizada; por defecto df['direccion_normalizada'].
+    Sirve igual para limpiar_itm(), victimas_limpias() y mortalidad_distrito()."""
+    out = df.copy()
+    out["corredor_id"] = pd.Series(np.nan, index=out.index, dtype="object")
+    out["metodo_asignacion"] = "sin_asignar"
+
+    if geometria is not None:
+        c = _asignar_por_coordenadas(out, geometria, lat, lon)
+        hay = c.notna()
+        out.loc[hay, "corredor_id"] = c[hay]
+        out.loc[hay, "metodo_asignacion"] = "coordenadas"
+
+    if direccion is None and "direccion_normalizada" in out.columns:
+        direccion = out["direccion_normalizada"]
+    if direccion is not None:
+        d = _asignar_por_direccion(direccion)          # se escribe cuando vea los límites
+        libre = out["corredor_id"].isna() & d.notna()
+        out.loc[libre, "corredor_id"] = d[libre]
+        out.loc[libre, "metodo_asignacion"] = "direccion"
+
+    print("\nIncidentes por corredor y método:")
+    print(pd.crosstab(out["corredor_id"].fillna("(sin asignar)"), out["metodo_asignacion"]).to_string())
+    return out
+
+# ---------------------------------------------------------------- asignación por dirección
+# (tipo de calle que cruza, mínimo, máximo). Calles "Sur" cuentan como negativas.
+LIMITES_DIRECCION = {
+    "AV_80":       ("CL", 30, 65),
+    "AV_POBLADO":  ("CL", -12, 30),
+    "AV_GUAYABAL": ("CL", -12, 30),
+    "AV_33":       ("CR", 50, 80),   # CONFIRMAR con Johan
+    "AV_SAN_JUAN": ("CR", 62, 80),   # CONFIRMAR con Johan
+}
+_VIA = re.compile(r"\b(CR|CL|AV|TV|DG)\s+(\d+)(?:\s+([A-Z])\b)?(\s+SUR\b)?")
+
+
+def _vias(texto):
+    """'CR 80 CON CL 44 B' -> [('CR', 80, '', False), ('CL', 44, 'B', False)]"""
+    return [(t, int(n), l or "", bool(s)) for t, n, l, s in _VIA.findall(texto or "")]
+
+
+def _asignar_por_direccion(direccion: pd.Series) -> pd.Series:
+    from src.velocidad import CORREDORES
+
+    reglas = {}
+    for cid, (_, alias, _) in CORREDORES.items():
+        if cid in LIMITES_DIRECCION:
+            reglas[cid] = ([v[:3] for v in _vias(alias.replace("CARRERA", "CR").replace("AVENIDA", "AV")
+                                                   .replace("CALLE", "CL"))], *LIMITES_DIRECCION[cid])
+    out, ambiguos = [], 0
+    for d in direccion.fillna("").astype(str):
+        vias = _vias(d)
+        hallados = []
+        for cid, (alias_vias, tipo, lo, hi) in reglas.items():
+            for i, (t, n, l, sur) in enumerate(vias):
+                if (t, n, l) not in alias_vias and (("CR" if t == "AV" else t), n, l) not in alias_vias:
+                    continue
+                otras = [v for j, v in enumerate(vias) if j != i and v[0] == tipo]
+                if any(lo <= (-v[1] if v[3] else v[1]) <= hi for v in otras):
+                    hallados.append(cid)
+                    break
+        if len(hallados) > 1:
+            ambiguos += 1
+        out.append(hallados[0] if hallados else np.nan)
+    print(f"Asignación por dirección: {sum(isinstance(x, str) for x in out)} asignadas | "
+          f"{ambiguos} en cruces de dos corredores (se toma el primero)")
+    return pd.Series(out, index=direccion.index, dtype="object")
+
+def victimas_con_corredor(geometria=None) -> pd.DataFrame:
+    """victimas_limpias() + direccion_normalizada + corredor_id, alineadas fila a fila."""
+    raw = leer("victimas_medata")
+    raw = raw[pd.to_numeric(_col(raw, "ANO"), errors="coerce").notna()]
+    df = victimas_limpias()
+    # mismas filas y mismo orden que dentro de victimas_limpias(): se filtra igual
+    fecha = a_fecha(raw["Fecha_incidente"])
+    g = sin_tildes(raw["Gravedad_victima"]).str.upper()
+    ok = fecha.notna() & (g.str.contains("HERID", na=False) | g.str.contains("MUERT", na=False))
+    direccion = normalizar_direccion(raw.loc[ok, "Direccion_incidente"])
+    assert len(direccion) == len(df), "las filas no coinciden"
+    df = df.reset_index(drop=True)
+    df["direccion_normalizada"] = direccion.reset_index(drop=True)
+    out = asignar_corredor(df, geometria=geometria)
+    out.to_csv(PROCESSED / "victimas_con_corredor.csv", index=False, encoding="utf-8")
+    return out
+
+
+def mortalidad_con_corredor(geometria=None) -> pd.DataFrame:
+    """mortalidad_distrito() + direccion_normalizada + corredor_id."""
+    raw = leer("mortalidad_distrito")
+    df = mortalidad_distrito().reset_index(drop=True)
+    assert len(raw) == len(df), "las filas no coinciden"
+    df["direccion_normalizada"] = normalizar_direccion(raw["direccion_ocurrencia"]).reset_index(drop=True)
+    out = asignar_corredor(df, geometria=geometria)
+    out.to_csv(PROCESSED / "mortalidad_con_corredor.csv", index=False, encoding="utf-8")
+    return out
+
