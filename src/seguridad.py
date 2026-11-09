@@ -252,3 +252,30 @@ def mortalidad_distrito() -> pd.DataFrame:
     df = df[COLS_MOR]
     df.to_csv(PROCESSED / "mortalidad_distrito.csv", index=False, encoding="utf-8")
     return df
+def limpiar_itm(umbral_relleno: int = 100) -> pd.DataFrame:
+    """Incidentes graves del ITM (solo herido y muerto, D8), mismo formato que incidentes_limpios().
+    Direcciones de relleno y coordenadas fuera de Medellín quedan vacías (D10).
+    Reporta las coordenadas que se repiten más de `umbral_relleno` veces (posible relleno)."""
+    raw = leer("incidentes_itm", sheet_name="BD")
+    lat0 = pd.to_numeric(raw["Latitud"], errors="coerce")
+    lon0 = pd.to_numeric(raw["Longitud"], errors="coerce")
+    fuera = (lat0.notna() & lon0.notna()) & ~(lat0.between(LAT_MIN, LAT_MAX) & lon0.between(LON_MIN, LON_MAX))
+    print(f"limpiar_itm: coordenadas fuera de Medellín (pasan a vacío): {int(fuera.sum())}")
+
+    df = incidentes_limpios()
+    n0 = len(df)
+    df = df[df["gravedad"].isin(["herido", "muerto"])].copy()
+    print(f"limpiar_itm: {n0} incidentes -> {len(df)} graves (se quitan {n0 - len(df)} de solo daños)")
+
+    rep = (df.dropna(subset=["lat", "lon"]).groupby(["lat", "lon"]).size()
+             .sort_values(ascending=False))
+    sospechosas = rep[rep > umbral_relleno]
+    print(f"limpiar_itm: coordenadas repetidas más de {umbral_relleno} veces: {len(sospechosas)} "
+          f"({int(sospechosas.sum())} incidentes)")
+    if len(sospechosas):
+        print(sospechosas.head(15).to_string())
+    sospechosas.rename("repeticiones").reset_index().to_csv(
+        PROCESSED / "coordenadas_repetidas_itm.csv", index=False, encoding="utf-8")
+
+    df.to_csv(PROCESSED / "incidentes_graves_itm.csv", index=False, encoding="utf-8")
+    return df
