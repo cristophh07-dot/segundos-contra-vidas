@@ -326,7 +326,7 @@ def _asignar_por_coordenadas(df, geometria, lat="lat", lon="lon"):
     return corredor
 
 
-def asignar_corredor(df: pd.DataFrame, geometria: pd.DataFrame | None = None,
+def asignar_corredor_propio(df: pd.DataFrame, geometria: pd.DataFrame | None = None,
                      direccion: pd.Series | None = None,
                      lat: str = "lat", lon: str = "lon") -> pd.DataFrame:
     """Devuelve df con corredor_id y metodo_asignacion ('coordenadas', 'direccion' o 'sin_asignar').
@@ -427,3 +427,7 @@ def mortalidad_con_corredor(geometria=None) -> pd.DataFrame:
     out.to_csv(PROCESSED / "mortalidad_con_corredor.csv", index=False, encoding="utf-8")
     return out
 
+def asignar_corredor(df, geometria=None, **kw):
+    """Delega en src.corredores para que ITM, víctimas y mortalidad usen el mismo método (P3)."""
+    from src.corredores import asignar_corredor as asignar
+    return asignar(df, catalogo=geometria)
