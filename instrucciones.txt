@@ -1,28 +1,96 @@
 INSTRUCCIONES - Segundos contra vidas
 
-Equipo: [nombre del equipo] · Hackathon de Datos 2026 · ITM
+Equipo: Segundos contra vidas · Hackathon de Datos 2026 · ITM
 Integrantes: Cristopher Corrales Boada (líder), Josué y Johan
 Categoría Interna · Modalidad Análisis de datos (notebook reproducible) · Temática Transporte y movilidad
 
 1. QUÉ ES
-   [Por completar al final: qué hace el notebook, en dos líneas]
+   Un análisis de datos abiertos de Medellín que responde: ¿en qué vías salvaría más vidas
+   bajar la velocidad (como Bogotá) o separar a las motos (como Malasia), y cuántos segundos
+   le costaría a cada conductor? El notebook principal cuenta la historia completa, de los
+   datos a la propuesta: notebooks/segundos_contra_vidas.ipynb
 
-2. PROBARLO EN LÍNEA
-   [enlace de Colab, o "No aplica"]
+2. LA FORMA MÁS FÁCIL: VERLO SIN INSTALAR NADA
+   El notebook principal ya está ejecutado en GitHub, con todas sus gráficas y resultados.
+   Basta con abrir este enlace en el navegador:
+       https://github.com/cristophh07-dot/segundos-contra-vidas/blob/main/notebooks/segundos_contra_vidas.ipynb
+   Si GitHub no lo muestra (a veces dice "Unable to render"), el mismo notebook se ve aquí:
+       https://nbviewer.org/github/cristophh07-dot/segundos-contra-vidas/blob/main/notebooks/segundos_contra_vidas.ipynb
+   Los anexos (notebooks 01 a 06) también están ejecutados en la carpeta notebooks/ del repositorio.
 
-3. ENTORNO
-   Python 3.13 · dependencias con versión exacta en requirements.txt
-   Probado en Windows con Anaconda.
+3. EJECUTARLO EN SU COMPUTADOR
+   No hace falta Anaconda: sirve cualquier Python 3.13. Tampoco hay que descargar ningún
+   archivo de datos: el código los descarga solo desde las fuentes oficiales.
 
-4. EJECUTARLO
-   pip install -r requirements.txt
-   python -m src.verificar_fuentes
-   jupyter notebook notebooks/proyecto_final.ipynb
-   (Ejecutar todas las celdas. Los datos se descargan solos desde sus URLs la primera vez
-   y quedan en data/cache/; la primera ejecución descarga unos 370 MB.)
+   Lo que se necesita
+   - Python 3.13, de cualquiera de estas dos formas:
+       · Anaconda (trae Python y Jupyter): https://www.anaconda.com/download
+       · Python solo, desde https://www.python.org/downloads/
+         En Windows, al instalar, marcar la casilla "Add python.exe to PATH".
+   - Conexión a internet (la primera vez se descargan unos 370 MB de datos).
+   - Este repositorio completo. Las carpetas que usa son src/ (el código), notebooks/
+     (los análisis) y el archivo requirements.txt (las librerías).
+
+   Paso 1 · Descargar el repositorio
+           En https://github.com/cristophh07-dot/segundos-contra-vidas
+           botón verde "Code" → "Download ZIP". Descomprimir la carpeta.
+           (Con git: git clone https://github.com/cristophh07-dot/segundos-contra-vidas.git)
+
+   Paso 2 · Abrir una terminal dentro de esa carpeta
+           Con Anaconda: abrir "Anaconda Prompt".
+           Sin Anaconda: abrir "Símbolo del sistema" (cmd) o PowerShell.
+           Y escribir, cambiando la ruta por la de su carpeta:
+               cd C:\ruta\a\segundos-contra-vidas
+
+   Paso 3 · Instalar las librerías (una sola vez; tarda unos minutos)
+               python -m pip install -r requirements.txt
+
+   Paso 4 · Abrir Jupyter
+               python -m notebook
+           Se abre en el navegador. Entrar a la carpeta notebooks/.
+
+   Paso 5 · Correr los notebooks en este orden
+           En cada uno: menú "Run" → "Run All Cells" (o "Kernel" → "Restart & Run All"),
+           y esperar a que termine antes de abrir el siguiente.
+               1) 03_exponente_medellin.ipynb
+               2) 05_prediccion.ipynb
+               3) 06_montecarlo.ipynb
+               4) segundos_contra_vidas.ipynb   ← EL NOTEBOOK PRINCIPAL
+           Los tres primeros calculan los resultados que usa el principal. Si falta alguno,
+           la primera celda del principal dice cuál correr.
+
+   Si algo sale mal
+   - "python no se reconoce": Python no quedó en el PATH. Reinstalarlo marcando
+     "Add python.exe to PATH", o usar Anaconda Prompt.
+   - Error al instalar las librerías porque hay varias versiones de Python en el equipo:
+     usar  py -3.13 -m pip install -r requirements.txt  y  py -3.13 -m notebook
+   - Error al descargar un archivo: revisar la conexión. Para comprobar que las fuentes
+     responden:  python -m src.verificar_fuentes   (cada una debe salir [OK]).
+   - Error raro después de una ejecución interrumpida: borrar las carpetas data/cache/ y
+     data/processed/ y volver al paso 5.
+   - Es normal que la primera vez tarde varios minutos: está descargando los datos.
+
+   Notas
+   - Los notebooks 01, 02 y 04 son anexos (datos, modelo de riesgo y cuarentena); se pueden
+     correr en cualquier orden.
+   - El mapa del notebook principal descarga un fondo de calles. Sin internet, sale sin fondo.
+   - Las gráficas del notebook principal se guardan también en figuras/final/.
+
+4. ENTORNO PROBADO
+   Python 3.13 en Windows, con Anaconda. Versiones exactas de las librerías en requirements.txt.
 
 5. QUÉ DEBE VER
-   [Por completar al final: hallazgo principal con cifra]
+   En el notebook principal (notebooks/segundos_contra_vidas.ipynb):
+   - Entre 2019 y 2024 murieron 1.541 personas en las vías de Medellín; 294 sobre 12
+     corredores, y casi la mitad de esos (143) en solo 3: la Avenida Regional, la Autopista
+     Sur y la Autopista Norte.
+   - Con un tope de 50 km/h con control permanente y un carril exclusivo de motos en esas
+     3 vías, se salvarían unas 5,7 vidas al año (entre 4,4 y 7,1) y se evitarían unos 372
+     incidentes graves al año: 1 de cada 4 en esas vías.
+   - El costo es de segundos: 57 s por viaje en la Regional y entre 4 y 16 s en las
+     autopistas.
+   - Las cifras salen de 10.000 simulaciones (Monte Carlo), por eso cada una va con su
+     intervalo. Las limitaciones están al final del notebook.
 
 6. DATOS Y FUENTES
    Todas las URLs están en src/fuentes.py y se leen solo con src.descarga.leer("<clave>").
@@ -53,16 +121,16 @@ Categoría Interna · Modalidad Análisis de datos (notebook reproducible) · Te
 7. USO DE IA
    Herramienta: Claude (Anthropic), en la interfaz de chat.
    Para qué se usó:
-   - Proponer y depurar código (lectura de fuentes, limpieza, modelos y gráficas).
+   - Escribir y depurar código (lectura de fuentes, limpieza, modelos y gráficas).
    - Explicar pruebas estadísticas e interpretar resultados ya calculados.
-   - Ordenar el plan de trabajo, las decisiones y los mensajes del equipo.
+   - Redactar borradores de textos, decisiones y mensajes del equipo.
    Cómo se verificó:
    - Todo el código se ejecutó en los computadores del equipo con los datos reales,
      descargados desde las URLs de src/fuentes.py. Las cifras salen de esas ejecuciones.
    - Los datos sintéticos solo se usaron para probar que el código corre; ningún resultado
      del proyecto sale de ellos.
    - Las decisiones del proyecto las tomó el equipo (docs/DECISIONES.md).
-   Detalle por integrante: docs/uso_ia_johan.md [y los de Cristopher y Josué, por completar].
+   Detalle por integrante: docs/uso_ia_cristopher.md, docs/uso_ia_josue.md y docs/uso_ia_johan.md.
 
 8. CONTACTO
    Cristopher Corrales Boada · cristophh.07@gmail.com
