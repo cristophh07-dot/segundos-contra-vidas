@@ -728,6 +728,158 @@ def _pruebas_nocturna() -> None:
     print("Pruebas de velocidad nocturna: todo bien ✔" if todo_ok else "Pruebas de velocidad nocturna: REVISAR los avisos de arriba")
 
 
+# ---------------------------------------------------------------------------
+# Costo en tiempo de un límite de velocidad (Tarea 5)
+# ---------------------------------------------------------------------------
+VIAS_RAPIDAS = ("AV_REGIONAL", "AUT_NORTE", "AUT_SUR", "AV_PALMAS")  # D18: vías de flujo continuo
+FRANJAS_GT = {"pico_am": range(6, 9), "valle": range(9, 17), "pico_pm": range(17, 20)}
+HORA_A_FRANJA = {h: f for f, horas in FRANJAS_GT.items() for h in horas}
+LIMITES_ESCENARIO = {"limite_50": 50.0, "limite_40": 40.0}
+ANIOS_COSTO = (2017, 2018, 2019)  # D4: ventana de los modelos
+
+
+def _observaciones_costo() -> pd.DataFrame:
+    """Velocidad de Google Traffic por tramo (sentido), fecha y hora de las vías rápidas, 2017-2019.
+
+    Primero promedia las lecturas repetidas de cada tramo y hora (como tiempo_viaje_gt). La longitud
+    de cada corredor se define igual que en el catálogo: promedio de las medianas de sus tramos.
+    La hora 20 se deja fuera porque pertenece a la franja 'noche', que Google Traffic no cubre.
+    """
+    gt = leer("velocidad_gt", usecols=["CORREDOR", "FECHA", "HORA", "LONGITUD_KM", "VELOCIDAD_KM/H"])
+    gt["corredor_id"] = gt["CORREDOR"].map(TRAMO_A_CORREDOR)
+    sin_corredor = sorted(gt.loc[gt["corredor_id"].isna(), "CORREDOR"].unique())
+    if sin_corredor:
+        raise ValueError(f"Tramos de velocidad_gt sin corredor_id: {sin_corredor}")
+    gt["fecha"] = pd.to_datetime(gt["FECHA"], format="%d/%m/%Y", errors="coerce")
+    if gt["fecha"].isna().any():
+        raise ValueError("Hay fechas de velocidad_gt que no siguen el formato día/mes/año")
+
+    longitud = (gt.groupby(["corredor_id", "CORREDOR"])["LONGITUD_KM"].median()
+                  .groupby("corredor_id").mean().round(2))
+
+    obs = gt[gt["corredor_id"].isin(VIAS_RAPIDAS)
+             & gt["fecha"].dt.year.isin(list(ANIOS_COSTO))
+             & gt["HORA"].isin(list(HORA_A_FRANJA))]
+    por_tramo = (obs.groupby(["corredor_id", "CORREDOR", "fecha", "HORA"], as_index=False)["VELOCIDAD_KM/H"]
+                    .mean().rename(columns={"VELOCIDAD_KM/H": "v", "HORA": "hora"}))
+    por_tramo = por_tramo[por_tramo["v"].notna() & (por_tramo["v"] > 0)].copy()
+    por_tramo["franja"] = por_tramo["hora"].map(HORA_A_FRANJA)
+    por_tramo["longitud_km"] = por_tramo["corredor_id"].map(longitud)
+    return por_tramo.reset_index(drop=True)
+
+
+def costo_tiempo_escenarios(escenarios=("limite_50",)) -> pd.DataFrame:
+    """Segundos extra por viaje que costaría un límite de velocidad en las vías rápidas.
+    Guarda data/processed/costo_tiempo_escenarios.csv.
+
+    Para cada tramo, fecha y hora:  v_escenario = min(v_actual, límite)
+    segundos_extra = (longitud_km / v_escenario - longitud_km / v_actual) * 3600
+    segundos_extra_viaje es el promedio de ese costo en la franja (cada hora pesa igual: Google Traffic
+    no trae volumen). Así un límite solo cuesta tiempo en las horas en que hoy se anda por encima.
+    No se aplica la fórmula a la velocidad media de la franja: una media por debajo del límite
+    esconde las horas en que sí se pasa.
+    Franjas: pico_am (6-9), valle (9-17), pico_pm (17-20), con Google Traffic 2017-2019 (D4).
+    La franja 'noche' y el escenario nocturno_40 no se calculan (Google Traffic no tiene noche).
+    """
+    for esc in escenarios:
+        if esc not in LIMITES_ESCENARIO:
+            raise ValueError(f"Escenario no soportado: {esc}. Opciones: {list(LIMITES_ESCENARIO)}")
+    obs = _observaciones_costo()
+    partes = []
+    for esc in escenarios:
+        o = obs.copy()
+        o["v_esc"] = o["v"].clip(upper=LIMITES_ESCENARIO[esc])
+        o["extra_s"] = (o["longitud_km"] / o["v_esc"] - o["longitud_km"] / o["v"]) * 3600
+        g = o.groupby(["corredor_id", "franja"]).agg(
+            v_actual_kmh=("v", "mean"),
+            v_escenario_kmh=("v_esc", "mean"),
+            segundos_extra_viaje=("extra_s", "mean"),
+        ).reset_index()
+        g["escenario"] = esc
+        partes.append(g)
+    out = pd.concat(partes, ignore_index=True)
+    out["franja"] = pd.Categorical(out["franja"], categories=list(FRANJAS_GT), ordered=True)
+    out = out.sort_values(["corredor_id", "escenario", "franja"]).reset_index(drop=True)
+    out["franja"] = out["franja"].astype(str)
+    cols_num = ["v_actual_kmh", "v_escenario_kmh", "segundos_extra_viaje"]
+    out[cols_num] = out[cols_num].round(2)
+    out = out[["corredor_id", "franja", "escenario"] + cols_num]
+    out.to_csv(PROCESSED / "costo_tiempo_escenarios.csv", index=False, encoding="utf-8")
+    return out
+
+
+def _pruebas_costo() -> None:
+    """Pruebas de aceptación del costo en tiempo. Escribe docs/costo_tiempo.txt."""
+    print("\n=== Costo en tiempo de un límite de 50 km/h (Tarea 5) ===")
+    obs = _observaciones_costo()
+    tabla = costo_tiempo_escenarios()
+
+    columnas = ["corredor_id", "franja", "escenario", "v_actual_kmh", "v_escenario_kmh", "segundos_extra_viaje"]
+    assert list(tabla.columns) == columnas, f"Columnas distintas al contrato: {list(tabla.columns)}"
+    assert set(tabla["corredor_id"]) == set(VIAS_RAPIDAS), "Faltan vías rápidas en el resultado"
+    assert set(tabla["franja"]) <= set(FRANJAS_GT), "Franja fuera de las permitidas"
+    assert not tabla.duplicated(["corredor_id", "franja", "escenario"]).any(), "Filas duplicadas"
+    assert tabla[columnas[3:]].notna().all().all(), "Hay valores vacíos"
+    assert (tabla["v_escenario_kmh"] <= tabla["v_actual_kmh"] + 1e-9).all(), "v_escenario mayor que v_actual"
+    assert (tabla["segundos_extra_viaje"] >= 0).all(), "Costo negativo"
+    print("   Formato del contrato (columnas, sin duplicados ni vacíos, costo >= 0): ✔")
+
+    periodo = f"{obs['fecha'].min():%Y-%m-%d} a {obs['fecha'].max():%Y-%m-%d}"
+    print(f"   Observaciones (tramo-hora): {len(obs):,} · {periodo} · horas {int(obs['hora'].min())} a {int(obs['hora'].max())}")
+
+    sobre = ((obs.assign(sobre=obs["v"] > 50.0).groupby(["corredor_id", "franja"])["sobre"].mean() * 100)
+             .round(1).unstack()[list(FRANJAS_GT)])
+    pivote = tabla.pivot(index="corredor_id", columns="franja", values="segundos_extra_viaje")[list(FRANJAS_GT)]
+
+    g = obs.groupby(["corredor_id", "franja"]).agg(v=("v", "mean"), L=("longitud_km", "first"))
+    literal = ((g["L"] / g["v"].clip(upper=50.0) - g["L"] / g["v"]) * 3600).round(2).rename("segundos_formula_literal")
+    comp = (tabla.set_index(["corredor_id", "franja"])[["segundos_extra_viaje"]]
+            .rename(columns={"segundos_extra_viaje": "segundos_hora_a_hora"}).join(literal).reset_index())
+
+    print("\n   % de observaciones con velocidad sobre 50 km/h:")
+    print(sobre.to_string())
+    print("\n   Segundos extra por viaje con limite_50:")
+    print(pivote.to_string())
+    print("\n   Comparación: promedio hora a hora (el que se entrega) contra la fórmula literal a la velocidad media:")
+    print(comp.to_string(index=False))
+
+    texto = "\n".join([
+        "Costo en tiempo de un límite de velocidad (Tarea 5)",
+        "=" * 60,
+        "Vías evaluadas: Regional, Autopista Norte, Autopista Sur y Las Palmas (D18: vías de flujo continuo).",
+        f"Fuente: velocidad_gt (Google Traffic), {periodo}, horas 6 a 19, todos los días.",
+        "Escenario calculado: limite_50 (50 km/h todo el día). limite_40 y la franja noche no se calculan: "
+        "pendientes de decisión.",
+        "",
+        "Método: para cada tramo (sentido), fecha y hora, v_escenario = min(v_actual, límite) y "
+        "segundos_extra = (longitud_km / v_escenario - longitud_km / v_actual) x 3600. "
+        "segundos_extra_viaje es el promedio de ese costo en la franja; cada hora pesa igual porque "
+        "Google Traffic no trae volumen. No se aplica la fórmula a la velocidad media de la franja: una media "
+        "por debajo de 50 km/h esconde las horas en que sí se pasa. v_actual_kmh y v_escenario_kmh son los "
+        "promedios de las velocidades observadas y de las velocidades con el límite.",
+        "",
+        "Limitaciones: (1) la velocidad de Google Traffic es la del flujo en el tramo, no la de cada vehículo; "
+        "los vehículos más rápidos no se ven, así que el costo real de un límite es mayor: estas cifras son "
+        "una cota inferior. (2) La hora 20 pertenece a la franja noche y Google Traffic no la cubre; la franja "
+        "noche se omite. (3) Longitud del corredor: promedio de las medianas de sus tramos (la misma del "
+        "catálogo). (4) Se usan todos los días de 2017 a 2019 (D4), sin separar fines de semana.",
+        "",
+        "Tabla (formato del contrato, sección 6.4):",
+        tabla.to_string(index=False),
+        "",
+        "% de observaciones sobre 50 km/h:",
+        sobre.to_string(),
+        "",
+        "Comparación con la fórmula literal a la velocidad media de la franja:",
+        comp.to_string(index=False),
+    ])
+    carpeta = pathlib.Path("docs")
+    carpeta.mkdir(exist_ok=True)
+    (carpeta / "costo_tiempo.txt").write_text(texto + "\n", encoding="utf-8")
+    print("\nResumen guardado en docs/costo_tiempo.txt")
+    print("Pruebas de costo en tiempo: todo bien ✔")
+
+
 if __name__ == "__main__":
     cat = catalogo_corredores()
     print(cat.drop(columns=["fuente_longitud", "geometria_wkt"]).to_string())
@@ -771,3 +923,7 @@ if __name__ == "__main__":
         if "src.corredores" not in str(e):
             raise
         print("\nVelocidad nocturna: falta src/corredores.py. Haz git pull (o trae la rama que lo tiene) y vuelve a correr.")
+
+
+if __name__ == "__main__":
+    _pruebas_costo()
