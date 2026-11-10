@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import pathlib
 
+import numpy as np
 import pandas as pd
 
 from src.descarga import leer
@@ -75,6 +76,24 @@ CORREDORES = {
 # Caja aproximada de Medellín en grados (lon mín, lon máx, lat mín, lat máx): solo para detectar
 # coordenadas mal convertidas o fuera de la ciudad.
 BBOX_MEDELLIN = (-75.75, -75.40, 6.10, 6.45)
+
+# Sitios que son extremos de tramos de Google Traffic (INICIO o FIN) y no son cruces de calles.
+# Coordenadas WGS84 en grados decimales, (latitud, longitud), ubicadas a mano en un mapa
+# (Google Maps: clic derecho sobre el punto y copiar las coordenadas). Anota en el comentario de
+# cada una de dónde salió. Mientras un sitio esté en None, el corredor que lo usa no se corta.
+SITIOS = {
+    "Tugo": (6.187786215142357, -75.58340414980118),  # Google Maps, ubicado a mano (Johan): inicio de la Regional
+    "San Juan x Regional": (6.2477074673587545, -75.57970548257146),  # Google Maps, cruce de la Av. San Juan con la Av. Regional (la Regional no tiene número de vía): fin de la Regional y de San Juan
+    "CTI": (6.261757414854626, -75.57375758415924),  # Google Maps, ubicado a mano (Johan): inicio de la Autopista Sur
+    "Solla": (6.311375800567043, -75.55857839758872),  # Google Maps, ubicado a mano (Johan): inicio de la Autopista Norte
+    "Punto Cero": (6.264705174959943, -75.57182229498812),  # Google Maps, ubicado a mano (Johan): fin de la Autopista Norte
+    "Sandiego": (6.236490359430701, -75.56862066558021),  # Google Maps, ubicado a mano (Johan): inicio de Las Palmas
+    "Chuscalito": (6.216096327935572, -75.55257657239848),  # Google Maps, ubicado a mano (Johan): fin de Las Palmas
+    "Industriales": (6.231861354083098, -75.57439526122091),  # Google Maps, ubicado a mano (Johan): fin de la Calle 30
+    "Barranquilla": (6.264445, -75.567607),  # Google Maps, ubicado a mano (Johan): inicio del Ferrocarril (confirmó el punto anterior, a 18 m)
+    "Villanueva": (6.2532258783749795, -75.56251360175715),  # Google Maps, ubicado a mano (Johan): fin de la Av. Oriental
+    "Av. 33 x Autopista Sur": (6.239936, -75.578612),  # Google Maps, ubicado a mano (Johan): inicio de la Av. 33 (la mediana del ITM daba una recta de 3,07 km contra 2,55 km del tramo)
+}
 
 
 def _geometria_simm(simm: pd.DataFrame) -> dict[str, str]:
@@ -336,6 +355,368 @@ def velocidad_corredor_hora() -> pd.DataFrame:
     return out
 
 
+# =====================================================================
+# VELOCIDAD NOCTURNA POR CORREDOR (D21)
+# Usa sensores_simm() de src/corredores.py para asignar cada sensor a uno de los 12 corredores.
+# =====================================================================
+_PROC = pathlib.Path("data/processed")
+_DOCS = pathlib.Path("docs")
+V_MAX_NOCTURNA = 150          # D21: se descartan velocidades 0 y mayores de 150
+LIMITE_KMH = 50               # D18: tope evaluado
+Q_P85 = 0.85
+HORA_DIA_DESDE, HORA_DIA_HASTA = 6, 20   # franja "dia": 6 <= hora < 20
+HORAS_NOCHE = [0, 1, 2, 3, 4, 5, 20, 21, 22, 23]
+RAZON_P85_ESPERADA = 1.04     # D20: de noche el p85 sube ~4 %
+RAZON_P85_TOLERANCIA = 0.03   # fuera de 1,04 +/- 0,03 se avisa
+
+
+def _num_simm(serie: pd.Series) -> pd.Series:
+    """Número desde texto con coma decimal ('34,5') o desde una columna ya numérica."""
+    if pd.api.types.is_numeric_dtype(serie):
+        return serie.astype(float)
+    return pd.to_numeric(serie.astype(str).str.strip().str.replace(",", ".", regex=False), errors="coerce")
+
+
+def _col_exacta(df: pd.DataFrame, nombre: str, origen: str):
+    for c in df.columns:
+        if str(c).strip().lower() == nombre:
+            return c
+    raise KeyError(f"{origen}: no encuentro la columna '{nombre}'. Columnas reales: {list(df.columns)}")
+
+
+def _clave_texto(serie: pd.Series) -> pd.Series:
+    return serie.astype(str).str.strip().str.upper()
+
+
+def _clave_carril(serie: pd.Series) -> pd.Series:
+    """Carril como texto comparable: 1, 1.0 y '1' dan todos '1'; si no es número, el texto en mayúsculas."""
+    s = serie.astype(str).str.strip()
+    num = pd.to_numeric(s.str.replace(",", ".", regex=False), errors="coerce")
+    entero = num.notna() & (num == num.round())
+    out = s.str.upper()
+    out[entero] = num[entero].astype("int64").astype(str)
+    return out
+
+
+def velocidad_simm_limpia() -> pd.DataFrame:
+    """Mediciones del SIMM de los 12 corredores, a nivel de medición (el Monte Carlo aplica el tope de
+    50 km/h medición por medición). Une velocidad_simm con sensores_simm() por (corredor, carril).
+    Filtros (D21): sin velocidad 0, sin velocidad > 150, sin intensidad <= 0 o faltante.
+    Además se quitan las filas sin velocidad numérica (no se pueden ponderar); se cuentan aparte.
+    Guarda data/processed/velocidad_simm_limpia.csv."""
+    from src.corredores import sensores_simm
+
+    simm = leer("velocidad_simm")
+    print(f"velocidad_simm: {len(simm):,} filas")
+    c = {n: _col_exacta(simm, n, "velocidad_simm")
+         for n in ("corredor", "carril", "fecha", "hora", "velocidad_km_h", "intensidad", "operacion")}
+
+    # La columna fecha viene mezclada: texto día/mes/año y números de Excel con coma decimal.
+    # _fechas_simm() (la misma de velocidad_corredor_hora) lee los dos formatos.
+    fecha = _fechas_simm(simm[c["fecha"]]).dt.normalize()
+    if fecha.isna().any():
+        print(f"  AVISO: {int(fecha.isna().sum()):,} filas con fecha que no se pudo leer")
+
+    df = pd.DataFrame({
+        "corredor": _clave_texto(simm[c["corredor"]]),
+        "carril": _clave_carril(simm[c["carril"]]),
+        "fecha": fecha,
+        "hora": _num_simm(simm[c["hora"]]),
+        "velocidad_km_h": _num_simm(simm[c["velocidad_km_h"]]),
+        "intensidad": _num_simm(simm[c["intensidad"]]),
+        "operacion": simm[c["operacion"]],
+    })
+    del simm
+
+    # --- Asignación a los 12 corredores: la de src/corredores.py (no se inventa otra) ---
+    sens = sensores_simm()
+    s_corr = _col_exacta(sens, "corredor", "sensores_simm()")
+    s_car = _col_exacta(sens, "carril", "sensores_simm()")
+    s_id = _col_exacta(sens, "corredor_id", "sensores_simm()")
+    ids = sens[s_id].astype("string").fillna("").str.strip()
+    llave = pd.DataFrame({"corredor": _clave_texto(sens[s_corr]), "carril": _clave_carril(sens[s_car]),
+                          "corredor_id": ids})
+    llave = llave[(llave["corredor_id"] != "") & (llave["corredor_id"].str.lower() != "nan")]
+    llave["corredor_id"] = llave["corredor_id"].astype(str)
+    dup = llave.duplicated(["corredor", "carril"], keep=False)
+    if dup.any():
+        if (llave[dup].groupby(["corredor", "carril"])["corredor_id"].nunique() > 1).any():
+            raise ValueError("sensores_simm(): hay (corredor, carril) con más de un corredor_id")
+        llave = llave.drop_duplicates(["corredor", "carril"])
+    vistos = df[["corredor", "carril"]].drop_duplicates()
+    sin_filas = llave.merge(vistos, on=["corredor", "carril"], how="left", indicator=True)
+    n_sin = int((sin_filas["_merge"] == "left_only").sum())
+    print(f"sensores_simm(): {len(llave):,} sensores con corredor_id; {n_sin:,} no aparecen en velocidad_simm")
+
+    print("\nFiltros:")
+    df = df.merge(llave, on=["corredor", "carril"], how="left", validate="many_to_one")
+    sin_id = df["corredor_id"].isna()
+    print(f"  sin corredor_id (no son uno de los 12 corredores): {int(sin_id.sum()):,} filas fuera")
+    df = df[~sin_id].copy()
+    if df.empty:
+        raise ValueError("Ninguna fila de velocidad_simm quedó asignada a un corredor: revisa la unión por "
+                         "(corredor, carril) con sensores_simm()")
+    print(f"  quedan {len(df):,} filas de los 12 corredores")
+    print("\nDistribución de 'operacion' (sin filtrar), filas de los 12 corredores:")
+    print(df["operacion"].value_counts(dropna=False).to_string())
+    print()
+
+    def quitar(d: pd.DataFrame, mascara: pd.Series, texto: str) -> pd.DataFrame:
+        print(f"  filtro {texto}: quita {int(mascara.sum()):,} filas")
+        return d[~mascara]
+
+    df = quitar(df, df["velocidad_km_h"].isna(), "velocidad faltante o no numérica (no está en D21; no se puede ponderar)")
+    df = quitar(df, df["velocidad_km_h"] == 0, "velocidad_km_h == 0")
+    df = quitar(df, df["velocidad_km_h"] > V_MAX_NOCTURNA, f"velocidad_km_h > {V_MAX_NOCTURNA}")
+    df = quitar(df, df["intensidad"].isna() | (df["intensidad"] <= 0), "intensidad <= 0 o faltante")
+    print(f"  quedan {len(df):,} filas")
+    bajas = int((df["velocidad_km_h"] < 1).sum())
+    if bajas:
+        print(f"  OJO: {bajas:,} filas con velocidad entre 0 y 1 km/h (o negativa) siguen dentro: no es un filtro de D21")
+
+    hora = df["hora"]
+    mala = hora.isna() | (hora != hora.round()) | (hora < 0) | (hora > 23)
+    if mala.any():
+        raise ValueError(f"{int(mala.sum()):,} filas con hora fuera de 0-23 o no entera: hay que decidir qué hacer con ellas")
+    df["hora"] = hora.astype(int)
+    df["franja"] = np.where((df["hora"] >= HORA_DIA_DESDE) & (df["hora"] < HORA_DIA_HASTA), "dia", "noche")
+
+    out = (df[["corredor_id", "carril", "fecha", "hora", "franja", "velocidad_km_h", "intensidad"]]
+           .sort_values(["corredor_id", "fecha", "hora", "carril"]).reset_index(drop=True))
+    _PROC.mkdir(parents=True, exist_ok=True)
+    out.to_csv(_PROC / "velocidad_simm_limpia.csv", index=False, encoding="utf-8")
+    fmin, fmax = out["fecha"].min(), out["fecha"].max()
+    print(f"\nvelocidad_simm_limpia: {len(out):,} filas · día {int((out['franja'] == 'dia').sum()):,} · "
+          f"noche {int((out['franja'] == 'noche').sum()):,} · fechas {fmin:%Y-%m-%d} a {fmax:%Y-%m-%d}"
+          if pd.notna(fmin) else f"\nvelocidad_simm_limpia: {len(out):,} filas")
+    return out
+
+
+def _p_ponderado(v: np.ndarray, w: np.ndarray, q: float = Q_P85) -> float:
+    """Percentil q ponderado por intensidad: la menor velocidad cuyo peso acumulado alcanza q del total
+    (sin interpolar)."""
+    if len(v) == 0:
+        return float("nan")
+    orden = np.argsort(v, kind="stable")
+    v, w = v[orden], w[orden]
+    acum = np.cumsum(w)
+    i = int(np.searchsorted(acum, q * acum[-1], side="left"))
+    return float(v[min(i, len(v) - 1)])
+
+
+def _medidas(g: pd.DataFrame) -> dict:
+    v = g["velocidad_km_h"].to_numpy(dtype=float)
+    w = g["intensidad"].to_numpy(dtype=float)
+    total = float(w.sum())
+    return {
+        "n_mediciones": int(len(g)),
+        "intensidad_total": total,
+        "v_media_ponderada": float((v * w).sum() / total),
+        "p85": _p_ponderado(v, w, Q_P85),
+        "pct_sobre_50": float(100 * w[v > LIMITE_KMH].sum() / total),
+    }
+
+
+def _tabla_medidas(df: pd.DataFrame, claves: list[str]) -> pd.DataFrame:
+    filas = []
+    for k, g in df.groupby(claves, sort=True):
+        k = k if isinstance(k, tuple) else (k,)
+        fila = dict(zip(claves, k))
+        fila.update(_medidas(g))
+        filas.append(fila)
+    out = pd.DataFrame(filas)
+    for col in ("v_media_ponderada", "p85", "pct_sobre_50"):
+        out[col] = out[col].round(4)
+    return out
+
+
+def perfil_horario_corredor(limpia: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Mismas medidas por corredor_id y hora (0-23), para graficar el perfil del día.
+    Guarda data/processed/perfil_horario_corredor.csv."""
+    if limpia is None:
+        limpia = velocidad_simm_limpia()
+    out = _tabla_medidas(limpia, ["corredor_id", "hora"])
+    _PROC.mkdir(parents=True, exist_ok=True)
+    out.to_csv(_PROC / "perfil_horario_corredor.csv", index=False, encoding="utf-8")
+    return out
+
+
+def velocidad_nocturna_corredor(limpia: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Una fila por corredor_id y franja (dia, noche): n_mediciones, intensidad_total, v_media_ponderada,
+    p85, pct_sobre_50 (ponderados por intensidad) y, por corredor, razon_noche_dia_media y
+    razon_noche_dia_p85 (se repiten en las dos filas del corredor; vacías si falta una franja).
+    Guarda data/processed/velocidad_nocturna_corredor.csv y también perfil_horario_corredor.csv."""
+    if limpia is None:
+        limpia = velocidad_simm_limpia()
+    out = _tabla_medidas(limpia, ["corredor_id", "franja"])
+    idx = out.set_index(["corredor_id", "franja"])
+
+    def razon(cid: str, col: str) -> float:
+        try:
+            return float(idx.loc[(cid, "noche"), col] / idx.loc[(cid, "dia"), col])
+        except KeyError:
+            return float("nan")
+
+    out["razon_noche_dia_media"] = out["corredor_id"].map(lambda c: razon(c, "v_media_ponderada")).round(4)
+    out["razon_noche_dia_p85"] = out["corredor_id"].map(lambda c: razon(c, "p85")).round(4)
+    _PROC.mkdir(parents=True, exist_ok=True)
+    out.to_csv(_PROC / "velocidad_nocturna_corredor.csv", index=False, encoding="utf-8")
+    perfil_horario_corredor(limpia)
+    return out
+
+
+def _p4_autopista_sur() -> str:
+    """P4: ¿la Autopista Sur aparece en el norte de la ciudad con alias CR 62-63? Una línea, con los números."""
+    import re
+
+    from src.corredores import CORREDORES as _C
+    from src.corredores import sensores_simm
+
+    sens = sensores_simm()
+    cols = {str(c).strip().lower(): c for c in sens.columns}
+    c_id = cols.get("corredor_id")
+    c_lat = next((cols[k] for k in ("lat", "latitud", "lat_wgs84", "latitude") if k in cols), None)
+    c_lon = next((cols[k] for k in ("lon", "longitud", "lon_wgs84", "longitude") if k in cols), None)
+    if c_id is None or c_lat is None or c_lon is None:
+        return f"P4: no se pudo comprobar: sensores_simm() no trae corredor_id/latitud/longitud (columnas: {list(sens.columns)})."
+    lat, lon = _num_simm(sens[c_lat]), _num_simm(sens[c_lon])
+    if lat.abs().max() > 1000:   # vienen en metros (MAGNA-SIRGAS Bogotá, EPSG:3116): x = longitud, y = latitud
+        from pyproj import Transformer
+        ok = lat.notna() & lon.notna()
+        x, y = Transformer.from_crs("EPSG:3116", "EPSG:4326", always_xy=True).transform(
+            lon[ok].to_numpy(), lat[ok].to_numpy())
+        lat_g, lon_g = pd.Series(np.nan, index=sens.index), pd.Series(np.nan, index=sens.index)
+        lon_g[ok], lat_g[ok] = x, y
+        lat = lat_g
+    ids = sens[c_id].astype("string").fillna("").str.strip()
+
+    def rango(cid: str):
+        m = (ids == cid) & lat.notna()
+        return (float(lat[m].min()), float(lat[m].max()), int(m.sum())) if m.any() else None
+
+    sur, norte = rango("AUT_SUR"), rango("AUT_NORTE")
+    if sur is None:
+        return "P4: no se pudo comprobar: sensores_simm() no tiene sensores con corredor_id AUT_SUR."
+    texto = f"P4: AUT_SUR tiene {sur[2]} sensores entre latitud {sur[0]:.4f} y {sur[1]:.4f}"
+    if norte is None:
+        texto += "; no hay sensores de AUT_NORTE para comparar"
+    else:
+        al_norte = int(((ids == "AUT_SUR") & (lat >= norte[0])).sum())
+        texto += (f"; AUT_NORTE va de {norte[0]:.4f} a {norte[1]:.4f} → "
+                  + ("NO aparece en el norte (todos sus sensores quedan al sur del sensor más al sur de AUT_NORTE)"
+                     if al_norte == 0 else f"SÍ: {al_norte} de sus sensores quedan al norte del sensor más al sur de AUT_NORTE"))
+    alias = str(_C.get("AUT_SUR")) if hasattr(_C, "get") else ""
+    tiene = re.search(r"(?:CR|CARRERA)\s?6[23]\b", alias.upper()) is not None
+    texto += f"; el alias de AUT_SUR en CORREDORES {'SÍ' if tiene else 'NO'} contiene CR 62-63 ({alias})."
+    return texto
+
+
+def _pruebas_nocturna() -> None:
+    """Pruebas de aceptación de la velocidad nocturna. Escribe docs/velocidad_nocturna.txt."""
+    from src.corredores import CORREDORES as _C
+
+    print("\n=== Velocidad nocturna por corredor (D21) ===")
+    limpia = velocidad_simm_limpia()
+    franja = velocidad_nocturna_corredor(limpia)
+    horas = perfil_horario_corredor(limpia)
+    todo_ok = True
+    avisos: list[str] = []
+
+    ids12 = list(_C.keys()) if hasattr(_C, "keys") else list(_C)
+    if not all(isinstance(i, str) for i in ids12):
+        ids12 = sorted(limpia["corredor_id"].unique())
+    noche = limpia[limpia["franja"] == "noche"]
+    n_med = noche.groupby("corredor_id").size()
+    n_sen = noche.groupby("corredor_id")["carril"].nunique()
+    n_sen_total = limpia.groupby("corredor_id")["carril"].nunique()
+    con_noche = [c for c in ids12 if c in n_med.index]
+    sin_noche = [c for c in ids12 if c not in n_med.index]
+    print(f"\n1) Corredores con mediciones de noche: {len(con_noche)} de {len(ids12)}")
+    for c in ids12:
+        if c in n_med.index:
+            print(f"   {c:15s} {int(n_med[c]):>8,} mediciones · {int(n_sen[c])} sensores (carriles) de noche "
+                  f"· {int(n_sen_total[c])} en total")
+    if sin_noche:
+        msg = f"SIN mediciones de noche (no se rellena): {sin_noche}"
+        print("   " + msg)
+        avisos.append(msg)
+        todo_ok = False
+
+    print("\n2) Horas de noche (0-5 y 20-23) con datos, por corredor:")
+    for c in con_noche:
+        presentes = set(horas.loc[horas["corredor_id"] == c, "hora"].tolist())
+        faltan = [h for h in HORAS_NOCHE if h not in presentes]
+        if faltan:
+            msg = f"{c}: faltan las horas {faltan}"
+            avisos.append(msg)
+            todo_ok = False
+        else:
+            msg = f"{c}: las 10 horas de noche tienen datos"
+        print("   " + msg)
+
+    dia_g = limpia[limpia["franja"] == "dia"]
+    if len(noche) and len(dia_g):
+        md, mn = _medidas(dia_g), _medidas(noche)
+        r85, rmed = mn["p85"] / md["p85"], mn["v_media_ponderada"] / md["v_media_ponderada"]
+        print("\n3) Razón noche/día, 12 corredores juntos (ponderada por intensidad):")
+        print(f"   p85: día {md['p85']:.1f} · noche {mn['p85']:.1f} · razón {r85:.3f} ({(r85 - 1) * 100:+.1f} %)")
+        print(f"   media: día {md['v_media_ponderada']:.1f} · noche {mn['v_media_ponderada']:.1f} · razón {rmed:.3f} ({(rmed - 1) * 100:+.1f} %)")
+        if abs(r85 - RAZON_P85_ESPERADA) > RAZON_P85_TOLERANCIA:
+            msg = (f"AVISO: la razón del p85 ({(r85 - 1) * 100:+.1f} %) se aleja de ~+4 % de D20 "
+                   f"(rango aceptado {(RAZON_P85_ESPERADA - RAZON_P85_TOLERANCIA - 1) * 100:+.0f} % a "
+                   f"{(RAZON_P85_ESPERADA + RAZON_P85_TOLERANCIA - 1) * 100:+.0f} %). Ojo: aquí son solo los 12 corredores.")
+            print("   " + msg)
+            avisos.append(msg)
+            todo_ok = False
+        por_c = franja.drop_duplicates("corredor_id")[["corredor_id", "razon_noche_dia_media", "razon_noche_dia_p85"]]
+        print("\n   Razón por corredor:")
+        print(por_c.to_string(index=False))
+
+    pcts = pd.concat([franja["pct_sobre_50"], horas["pct_sobre_50"]])
+    ok_pct = bool(pcts.between(0, 100).all())
+    cols_v = ["v_media_ponderada", "p85"]
+    vs = pd.concat([franja[c] for c in cols_v] + [horas[c] for c in cols_v])
+    ok_v = bool(vs.between(1, V_MAX_NOCTURNA).all())
+    n_fuera = int((~limpia["velocidad_km_h"].between(1, V_MAX_NOCTURNA)).sum())
+    print("\n4) Rangos:")
+    print(f"   porcentajes entre 0 y 100: {'✔' if ok_pct else '✘'}")
+    print(f"   medias y p85 entre 1 y {V_MAX_NOCTURNA} km/h: {'✔' if ok_v else '✘'}")
+    print(f"   mediciones limpias con velocidad fuera de 1-{V_MAX_NOCTURNA}: {n_fuera:,} {'✔' if n_fuera == 0 else '✘'}")
+    if not (ok_pct and ok_v and n_fuera == 0):
+        todo_ok = False
+        avisos.append("Algún rango no se cumple (ver punto 4)")
+
+    p4 = _p4_autopista_sur()
+    print("\n" + p4)
+
+    fmin, fmax = limpia["fecha"].min(), limpia["fecha"].max()
+    periodo = f"{fmin:%Y-%m-%d} a {fmax:%Y-%m-%d}" if pd.notna(fmin) else "periodo no determinado"
+    texto = "\n".join([
+        "Velocidad nocturna por corredor (D21)",
+        "=" * 60,
+        f"Fuente: velocidad_simm (SIMM), periodo medido: {periodo} (según la columna fecha), 24 horas.",
+        "Franjas: dia = 6 <= hora < 20; noche = las demás horas (20-23 y 0-5).",
+        "Medidas ponderadas por intensidad, sin velocidades 0 ni mayores de 150 km/h y sin intensidad <= 0 o faltante.",
+        "p85 ponderado: la menor velocidad cuyo peso acumulado alcanza el 85 % de la intensidad (sin interpolar).",
+        "pct_sobre_50: % de la intensidad medida a más de 50 km/h.",
+        "",
+        "ADVERTENCIA: las mediciones son de 2020, con restricciones por la pandemia (D19: cuarentena mar-ago 2020, "
+        "velocidades ~29 % más altas). El nivel absoluto de velocidad puede estar inflado respecto a un año normal; "
+        "lo que se usa es la razón noche/día (razon_noche_dia_media y razon_noche_dia_p85), no los niveles.",
+        "",
+        "Tabla por corredor y franja:",
+        franja.to_string(index=False),
+        "",
+        ("Avisos: " + " | ".join(avisos)) if avisos else "Avisos: ninguno.",
+        "",
+        p4,
+    ])
+    _DOCS.mkdir(exist_ok=True)
+    (_DOCS / "velocidad_nocturna.txt").write_text(texto + "\n", encoding="utf-8")
+    print("\nResumen guardado en docs/velocidad_nocturna.txt")
+    print("Pruebas de velocidad nocturna: todo bien ✔" if todo_ok else "Pruebas de velocidad nocturna: REVISAR los avisos de arriba")
+
+
 if __name__ == "__main__":
     cat = catalogo_corredores()
     print(cat.drop(columns=["fuente_longitud", "geometria_wkt"]).to_string())
@@ -372,3 +753,10 @@ if __name__ == "__main__":
           f"{vel['corredor_id'].nunique()} corredores · horas {vel['hora'].min()} a {vel['hora'].max()}")
     print(vel.groupby("corredor_id")[["velocidad_media_kmh", "intensidad_veh_h", "pct_valido"]].mean().round(1).to_string())
     print("\nContrato cumplido ✔")
+
+    try:
+        _pruebas_nocturna()
+    except ModuleNotFoundError as e:
+        if "src.corredores" not in str(e):
+            raise
+        print("\nVelocidad nocturna: falta src/corredores.py. Haz git pull (o trae la rama que lo tiene) y vuelve a correr.")

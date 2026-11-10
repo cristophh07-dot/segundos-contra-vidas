@@ -1,0 +1,40 @@
+Velocidad nocturna por corredor (D21)
+============================================================
+Fuente: velocidad_simm (SIMM), periodo medido: 2020-07-01 a 2020-08-31 (según la columna fecha), 24 horas.
+Franjas: dia = 6 <= hora < 20; noche = las demás horas (20-23 y 0-5).
+Medidas ponderadas por intensidad, sin velocidades 0 ni mayores de 150 km/h y sin intensidad <= 0 o faltante.
+p85 ponderado: la menor velocidad cuyo peso acumulado alcanza el 85 % de la intensidad (sin interpolar).
+pct_sobre_50: % de la intensidad medida a más de 50 km/h.
+
+ADVERTENCIA: las mediciones son de 2020, con restricciones por la pandemia (D19: cuarentena mar-ago 2020, velocidades ~29 % más altas). El nivel absoluto de velocidad puede estar inflado respecto a un año normal; lo que se usa es la razón noche/día (razon_noche_dia_media y razon_noche_dia_p85), no los niveles.
+
+Tabla por corredor y franja:
+   corredor_id franja  n_mediciones  intensidad_total  v_media_ponderada  p85  pct_sobre_50  razon_noche_dia_media  razon_noche_dia_p85
+     AUT_NORTE    dia         15190        12831626.0            38.6255 52.0       17.5631                 0.9650               1.0192
+     AUT_NORTE  noche         10848         3976108.0            37.2732 53.0       20.7729                 0.9650               1.0192
+       AUT_SUR    dia         11226         9677995.0            37.5978 51.0       16.0770                 0.9975               1.0000
+       AUT_SUR  noche          7972         2706121.0            37.5052 51.0       15.5978                 0.9975               1.0000
+         AV_33    dia          7740         2397974.0            24.7976 32.0        0.1902                 0.9032               1.0000
+         AV_33  noche          5403          493402.0            22.3981 32.0        0.1013                 0.9032               1.0000
+         AV_80    dia         13182         4657457.0            23.8519 36.0        0.2501                 0.8576               0.8333
+         AV_80  noche          9179         1947567.0            20.4554 30.0        0.1149                 0.8576               0.8333
+AV_FERROCARRIL    dia          3472         1177278.0            30.1396 45.0        7.9086                 0.9697               1.1556
+AV_FERROCARRIL  noche          2465          272315.0            29.2277 52.0       16.6844                 0.9697               1.1556
+   AV_GUAYABAL    dia          8343         4795093.0            37.2711 46.0        9.0402                 0.8771               0.9565
+   AV_GUAYABAL  noche          5806          945465.0            32.6913 44.0        3.3626                 0.8771               0.9565
+   AV_ORIENTAL    dia         15033         3154255.0            19.9557 28.0        0.3199                 0.9522               1.0000
+   AV_ORIENTAL  noche         10196         1265702.0            19.0012 28.0        0.0293                 0.9522               1.0000
+     AV_PALMAS    dia          6900         3960076.0            39.7282 53.0       20.4573                 0.8591               0.8491
+     AV_PALMAS  noche          4897          672365.0            34.1298 45.0       10.2827                 0.8591               0.8491
+    AV_POBLADO    dia         22665         5840466.0            27.8759 49.0       13.4130                 1.0034               0.8980
+    AV_POBLADO  noche         15961         1231144.0            27.9719 44.0       10.8827                 1.0034               0.8980
+   AV_REGIONAL    dia         13002        11186743.0            44.3597 57.0       31.1487                 0.9428               1.0175
+   AV_REGIONAL  noche          9229         2229638.0            41.8203 58.0       26.6137                 0.9428               1.0175
+   AV_SAN_JUAN    dia          9549         3407027.0            26.2077 36.0        0.0000                 0.9627               1.0000
+   AV_SAN_JUAN  noche          6811          758391.0            25.2291 36.0        0.0098                 0.9627               1.0000
+         CL_30    dia          5259         1986553.0            29.5815 38.0        0.2370                 0.9553               1.0000
+         CL_30  noche          3753          641300.0            28.2579 38.0        0.8188                 0.9553               1.0000
+
+Avisos: AVISO: la razón del p85 (-2.0 %) se aleja de ~+4 % de D20 (rango aceptado +1 % a +7 %). Ojo: aquí son solo los 12 corredores.
+
+P4: AUT_SUR tiene 26 sensores entre latitud 6.2010 y 6.2587; AUT_NORTE va de 6.2627 a 6.3095 → NO aparece en el norte (todos sus sensores quedan al sur del sensor más al sur de AUT_NORTE); el alias de AUT_SUR en CORREDORES NO contiene CR 62-63 (('Autopista Sur', 'CR 50|CARRERA 50', 'Autopista Sur')).
