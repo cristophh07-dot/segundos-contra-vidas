@@ -315,7 +315,10 @@ def asignar_corredor(df: pd.DataFrame, catalogo: pd.DataFrame | None = None, rad
     """
     if catalogo is None:
         ruta = PROCESSED / "catalogo_corredores.csv"
-        catalogo = pd.read_csv(ruta) if ruta.exists() else geometria_corredores()[0]
+        catalogo = pd.read_csv(ruta) if ruta.exists() else None
+        # velocidad.catalogo_corredores() reescribe ese archivo con la geometría vacía: si pasa, se recalcula
+        if catalogo is None or catalogo["geometria_wkt"].isna().any():
+            catalogo = geometria_corredores()[0]
     lineas = {}
     for cid, w in zip(catalogo["corredor_id"], catalogo["geometria_wkt"]):
         p = np.array([(g.x, g.y) for g in shapely.from_wkt(w).geoms])
