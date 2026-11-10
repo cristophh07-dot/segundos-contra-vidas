@@ -7,3 +7,8 @@ __pycache__/
 .venv/
 venv/
 .env
+explorar.py
+perfil.py
+salida_*.txt
+.vs/
+crear_notebook.py

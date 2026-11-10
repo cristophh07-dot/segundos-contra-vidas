@@ -1,0 +1,157 @@
+=== 1 · Geometría por corredor ===
+
+AV_80 · Avenida 80
+  estaciones del SIMM: 11 · dentro del tramo: 6 · fuera: 5
+  eje de las estaciones: 9.43 km · tramo de Google Traffic: 5.1 km · geometría final: 4.89 km · hueco máximo entre puntos: 1774 m
+  INICIO → CL 65: cruce en las direcciones (1100 incidentes), a 14 m del eje
+  FIN    → CL 30: cruce en las direcciones (449 incidentes), a 148 m del eje
+  regla: los dos extremos ubicados con datos
+
+AV_33 · Avenida 33
+  estaciones del SIMM: 7 · dentro del tramo: 4 · fuera: 3
+  eje de las estaciones: 3.98 km · tramo de Google Traffic: 2.55 km · geometría final: 2.91 km · hueco máximo entre puntos: 1546 m
+  INICIO → AUT_SUR: cruce de los ejes (separación 0 m), a 0 m del eje
+  FIN    → AV_80: cruce de los ejes (separación 0 m), a 0 m del eje
+  regla: los dos extremos ubicados con datos
+
+CL_30 · Calle 30
+  estaciones del SIMM: 4 · dentro del tramo: 2 · fuera: 2
+  eje de las estaciones: 3.44 km · tramo de Google Traffic: 2.9 km · geometría final: 2.9 km · hueco máximo entre puntos: 1490 m
+  INICIO → CR 80: cruce en las direcciones (449 incidentes), a 28 m del eje
+  FIN    → Industriales: sitio sin coordenadas
+  regla: un extremo ubicado; el otro, con la longitud de Google Traffic
+
+AV_POBLADO · Avenida El Poblado
+  estaciones del SIMM: 8 · dentro del tramo: 5 · fuera: 3
+  eje de las estaciones: 4.65 km · tramo de Google Traffic: 3.8 km · geometría final: 4.31 km · hueco máximo entre puntos: 1224 m
+  INICIO → CL 30: cruce en las direcciones (333 incidentes), a 8 m del eje
+  FIN    → CL 12 SUR: cruce en las direcciones (205 incidentes), a 46 m del eje
+  regla: los dos extremos ubicados con datos
+
+AV_SAN_JUAN · Avenida San Juan
+  estaciones del SIMM: 5 · dentro del tramo: 3 · fuera: 2
+  eje de las estaciones: 3.87 km · tramo de Google Traffic: 2.5 km · geometría final: 2.86 km · hueco máximo entre puntos: 1512 m
+  INICIO → CR 80: cruce en las direcciones (628 incidentes), a 53 m del eje
+  FIN    → AV_REGIONAL: cruce de los ejes (separación 0 m), a 0 m del eje
+  regla: los dos extremos ubicados con datos
+
+AV_ORIENTAL · Avenida Oriental
+  estaciones del SIMM: 5 · dentro del tramo: 4 · fuera: 1
+  eje de las estaciones: 1.74 km · tramo de Google Traffic: 1.6 km · geometría final: 1.42 km · hueco máximo entre puntos: 720 m
+  INICIO → CL 44: cruce en las direcciones (332 incidentes), a 57 m del eje
+  FIN    → Villanueva: sitio sin coordenadas
+  regla: un extremo ubicado; el otro, con la longitud de Google Traffic
+
+AV_GUAYABAL · Avenida Guayabal
+  estaciones del SIMM: 10 · dentro del tramo: 10 · fuera: 0
+  eje de las estaciones: 3.01 km · tramo de Google Traffic: 4.1 km · geometría final: 4.05 km · hueco máximo entre puntos: 1490 m
+  INICIO → CL 30: cruce en las direcciones (322 incidentes), a 1053 m más allá de la última estación, en la prolongación del eje: se extiende
+  FIN    → CL 12 SUR: cruce en las direcciones (303 incidentes), a 20 m del eje
+  regla: los dos extremos ubicados con datos
+
+AUT_NORTE · Autopista Norte
+  estaciones del SIMM: 9 · dentro del tramo: 8 · fuera: 1
+  eje de las estaciones: 5.53 km · tramo de Google Traffic: 5.3 km · geometría final: 5.19 km · hueco máximo entre puntos: 1182 m
+  INICIO → Solla: sitio sin coordenadas
+  FIN    → CL 67: cruce en las direcciones (1601 incidentes), a 21 m del eje
+  regla: un extremo ubicado; el otro, con la longitud de Google Traffic
+
+AUT_SUR · Autopista Sur
+  estaciones del SIMM: 8 · dentro del tramo: 5 · fuera: 3
+  eje de las estaciones: 6.53 km · tramo de Google Traffic: 6.5 km · geometría final: 5.02 km · hueco máximo entre puntos: 2088 m
+  INICIO → CTI: sitio sin coordenadas
+  FIN    → CL 10: cruce en las direcciones (786 incidentes), a 49 m del eje
+  regla: un extremo ubicado; el otro, con la longitud de Google Traffic
+
+AV_REGIONAL · Avenida Regional
+  estaciones del SIMM: 10 · dentro del tramo: 7 · fuera: 3
+  eje de las estaciones: 8.08 km · tramo de Google Traffic: 6.6 km · geometría final: 6.52 km · hueco máximo entre puntos: 1813 m
+  INICIO → Tugo: sitio sin coordenadas
+  FIN    → AV_SAN_JUAN: cruce de los ejes (separación 0 m), a 0 m del eje
+  regla: un extremo ubicado; el otro, con la longitud de Google Traffic
+
+AV_FERROCARRIL · Avenida Ferrocarril
+  estaciones del SIMM: 2 · dentro del tramo: 2 · fuera: 0
+  eje de las estaciones: 0.47 km · tramo de Google Traffic: 2.3 km · geometría final: 2.15 km · hueco máximo entre puntos: 1379 m
+  INICIO → CL 67: cruce en las direcciones (44 incidentes), a 1379 m más allá de la última estación, en la prolongación del eje: se extiende
+  FIN    → CL 44: cruce en las direcciones (1099 incidentes), a 293 m más allá de la última estación, en la prolongación del eje: se extiende
+  regla: los dos extremos ubicados con datos
+
+AV_PALMAS · Avenida Las Palmas
+  estaciones del SIMM: 6 · dentro del tramo: 6 · fuera: 0
+  eje de las estaciones: 3.3 km · tramo de Google Traffic: 5.95 km · geometría final: 3.3 km · hueco máximo entre puntos: 989 m
+  INICIO → Sandiego: sitio sin coordenadas
+  FIN    → Chuscalito: sitio sin coordenadas
+  regla: ningún extremo ubicado: desde la punta más cercana al centro, con la longitud de Google Traffic
+
+=== 2 · Coordenadas de relleno ===
+Incidentes en puntos repetidos con 10 o más direcciones: 34,763 (no se excluyen: son intercambios viales, ver la lista)
+Puntos de relleno: 157 · los 12 más grandes:
+  (6.265181, -75.571703) · 765 incidentes · 15 direcciones · CL 67 CON CR 62 (329) | CL 67 CON CR 65 (175) | CR 62 CON CL 67 (169)
+  (6.275406, -75.573746) · 707 incidentes · 24 direcciones · CR 65 CON TV 78 (173) | TV 78 CON CR 65 (165) | CL 78 CON CR 65 (123)
+  (6.265556, -75.575333) · 685 incidentes · 12 direcciones · CL 67 CON CR 63 (447) | CR 63 CON CL 67 (153) | CL 67 CON CR 64 C (39)
+  (6.269632, -75.576185) · 685 incidentes · 13 direcciones · CL 71 CON CR 65 (507) | CR 65 CON CL 71 (107) | CL 70 CON CR 65 (23)
+  (6.217069, -75.586457) · 664 incidentes · 33 direcciones · CL 10 CON CR 65 (384) | CR 65 CON CL 10 (232) | CL 10 CON CR 64 (5)
+  (6.304539, -75.557885) · 589 incidentes · 86 direcciones · CR 64 C CON CL 111 (64) | CL 111 CON CR 64 C (52) | CL 110 CON CR 64 C (32)
+  (6.288487, -75.569573) · 582 incidentes · 40 direcciones · CL 94 CON CR 65 (257) | CL 92 CON CR 64 C (70) | CR 64 C CON CL 92 (66)
+  (6.286810, -75.566837) · 532 incidentes · 58 direcciones · CL 88 CON CR 62 (72) | CR 64 C CON CL 89 A (43) | CR 64 C CON CL 88 C (39)
+  (6.265267, -75.572666) · 523 incidentes · 49 direcciones · CL 66 CON CR 64 C (49) | CL 67 B CON CR 64 (45) | CR 64 C CON CL 66 (37)
+  (6.225386, -75.576755) · 503 incidentes · 10 direcciones · CL 25 CON CR 50 (273) | CR 50 CON CL 25 (210) | CL 25 CON CR 51 (13)
+  (6.296326, -75.561487) · 495 incidentes · 115 direcciones · CL 103 CON CR 63 (67) | CR 63 CON CL 103 (55) | CL 104 CON CR 64 (37)
+  (6.229601, -75.576190) · 490 incidentes · 36 direcciones · CL 30 CON CR 49 (120) | CR 49 CON CL 30 (98) | CR 50 CON CL 30 A (55)
+
+Los 5 puntos más repetidos en total (relleno o esquina):
+  (6.276994, -75.572664) · 1553 incidentes · 9 direcciones · CR 64 C CON CL 78 (585) | CL 78 CON CR 64 C (535)
+  (6.265727, -75.575023) · 1131 incidentes · 3 direcciones · CR 64 C CON CL 67 (577) | CL 67 CON CR 64 C (552)
+  (6.260355, -75.573188) · 883 incidentes · 5 direcciones · CL 58 CON CR 57 (443) | CL 58 CON CR 62 (209)
+  (6.186616, -75.656601) · 823 incidentes · 3 direcciones · CL 80 CON CR 80 (475) | CR 80 CON CL 80 (347)
+  (6.273374, -75.592978) · 817 incidentes · 2 direcciones · CL 65 CON CR 80 (431) | CR 80 CON CL 65 (386)
+
+=== 3 · Asignación de los incidentes graves del ITM ===
+Incidentes graves: 403,135 · asignados (≤50 m o por dirección): 55,903 (13.9%)
+metodo_asignacion
+sin_asignar    347232
+coordenadas     55832
+direccion          71
+
+                  ≤30 m  ≤50 m  ≤100 m  por dirección  ambiguos
+corredor_cercano                                               
+AV_80              3804   4856    7577             22       212
+AV_33              2604   4166    6232              0       386
+CL_30              3120   3221    4583              0        23
+AV_POBLADO         3134   3882    4731             25         0
+AV_SAN_JUAN        4478   4985    7457              0       546
+AV_ORIENTAL        4392   5388    6980              0         0
+AV_GUAYABAL        4241   4984    7130             24         1
+AUT_NORTE          8833  12755   18014              0         0
+AUT_SUR            2036   4603    7141              0        96
+AV_REGIONAL        3249   3653    7126              0       211
+AV_FERROCARRIL     1977   2680    5075              0         0
+AV_PALMAS           338    659    1245              0         0
+
+=== 4 · Validación: ¿la dirección nombra la vía del corredor asignado por coordenadas? ===
+  AV_80: 64% de 4,856
+  AV_33: 77% de 4,166
+  CL_30: 89% de 3,221
+  AV_POBLADO: 86% de 3,882
+  AV_SAN_JUAN: 94% de 4,985
+  AV_ORIENTAL: 84% de 5,388
+  AV_GUAYABAL: 87% de 4,984
+  AUT_NORTE: 73% de 12,755
+  AUT_SUR: 45% de 4,603
+  AV_REGIONAL: 74% de 3,653
+  AV_FERROCARRIL: 90% de 2,680
+  AV_PALMAS: sin número propio (se ubica solo por coordenadas) · 659 asignados
+
+=== 5 · Direcciones que NO nombran la vía del corredor (las 6 más frecuentes) ===
+  AV_80 (1,770): CL 30 CON CR 81 (123) | CL 33 CON CR 81 (104) | CL 35 CON CR 81 (91) | CL 30 A CON CR 81 (73) | CR 81 CON CL 35 (70) | CL 32 CON CR 81 (55)
+  AV_33 (943): CL 45 CON CR 63 (97) | CL 32 CON CR 63 (80) | CR 63 CON CL 45 (76) | CR 63 CON CL 32 (54) | CL 32 CON CR 62 (36) | CL 34 CON CR 62 (35)
+  CL_30 (345): CL 29 D CON CR 55 (56) | CR 80 CON CL 29 (31) | CL 29 CON CR 80 (27) | CL 28 CON CR 52 (19) | CL 30 A CON CR 67 (18) | CR 52 CON CL 28 (15)
+  AV_POBLADO (541): CL 4 SUR CON CR 43 C (62) | CL 6 SUR CON CR 43 C (37) | CR 43 C CON CL 4 SUR (20) | CL 4 SUR CON CR 43 B (18) | CR 43 C CON CL 6 SUR (16) | CL 8 SUR CON CR 43 B (16)
+  AV_SAN_JUAN (306): CL 44 A CON CR 63 (47) | CR 63 CON CL 44 A (30) | CL 65 CON CR 65 (20) | CR 65 CON CL 65 (19) | CL 044 065 (10) | CL 45 CON CR 75 (9)
+  AV_ORIENTAL (853): CL 44 CON CR 45 (270) | CL 58 CON CR 47 (166) | CL 49 CON CR 45 (62) | CL 47 CON CR 45 (53) | CR 45 CON CL 44 (43) | CL 53 CON CR 45 (32)
+  AV_GUAYABAL (654): CL 30 CON CR 53 (148) | CL 30 CON CR 54 (67) | CL 10 CON CR 52 A (25) | CL 10 CON CR 51 (23) | CL 9 CON CR 53 (15) | CL 12 CON CR 52 A (13)
+  AUT_NORTE (3,382): CL 94 CON CR 65 (260) | CL 101 CON CR 65 (181) | CR 65 CON CL 98 (103) | CL 78 CON CR 63 (96) | CL 98 CON CR 65 (94) | CR 63 CON CL 78 (93)
+  AUT_SUR (2,545): CL 50 CON CR 63 (342) | CR 63 CON CL 50 (178) | CL 30 CON CR 49 (176) | CL 33 CON CR 62 (129) | CL 49 CON CR 63 (114) | CL 52 CON CR 63 (107)
+  AV_REGIONAL (968): CL 41 CON CR 57 (71) | CR 57 CON CL 41 (60) | CL 16 CON CR 50 (40) | CL 35 CON CR 54 (35) | CL 34 CON CR 54 (31) | CL 26 CON CR 50 (26)
+  AV_FERROCARRIL (257): CL 54 CON CR 58 (24) | CL 62 CON CR 56 A (19) | CL 61 A CON CR 56 A (16) | CL 48 CON CR 58 (11) | CL 55 CON CR 58 (10) | CR 56 A CON CL 62 (8)

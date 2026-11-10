@@ -111,7 +111,7 @@ def _leer_arcgis(url: str) -> pd.DataFrame:
 
 def leer(nombre: str, forzar: bool = False, **kwargs):
     """Lee la fuente `nombre` de src/fuentes.py desde su URL (con caché local).
-    Ejemplos: leer("victimas_medata") · leer("conteo_simm", usecols=["FECHAHORA","VELOCIDAD"], chunksize=500_000)
+    Ejemplos: leer("victimas_medata") · leer("velocidad_simm", usecols=["corredor", "hora", "intensidad"])
     · leer("incidentes_itm", archivo="…/Data_Dictionary_Fatal_Road_Traffic.xlsx") para el diccionario."""
     if nombre not in FUENTES:
         raise KeyError(f"'{nombre}' no está en src/fuentes.py. Opciones: {list(FUENTES)}")
