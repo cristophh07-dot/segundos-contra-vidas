@@ -151,8 +151,12 @@ def muertos_peaton_moto(m: pd.DataFrame) -> pd.DataFrame:
     return d.groupby(["ano", "actor"]).size().unstack(fill_value=0).loc[2014:2021]
 
 
-def letalidad_diseno() -> pd.DataFrame:
-    """Letalidad de los incidentes graves con moto según el diseño de la vía, un registro por incidente (D14)."""
+NO_SON_VIAS = ["Lote o Predio"]      # ocurre dentro de un lote o predio, no en la vía: no es un diseño de vía
+
+
+def letalidad_diseno(excluir=NO_SON_VIAS) -> pd.DataFrame:
+    """Letalidad de los incidentes graves con moto según el diseño de la vía, un registro por incidente (D14).
+    Se excluyen las categorías que no son vías (`excluir`), y se dice cuántos incidentes quedan fuera."""
     def calcular():
         from src.descarga import leer
         from src.utilidades import normalizar_columnas
@@ -169,7 +173,12 @@ def letalidad_diseno() -> pd.DataFrame:
         t.to_csv(PROCESADOS / "letalidad_diseno.csv")
         return t.reset_index()
     t = _cache("letalidad_diseno", calcular)
-    return t.set_index(t.columns[0])
+    t = t.set_index(t.columns[0])
+    fuera = t.index.str.upper().isin([e.upper() for e in excluir])
+    if fuera.any():
+        print("Fuera de la gráfica (no son vías):",
+              ", ".join(f"{i} ({int(g):,} incidentes graves)".replace(",", ".") for i, g in t.loc[fuera, "graves"].items()))
+    return t[~fuera]
 
 
 def dos_velocidades() -> pd.DataFrame:
@@ -192,3 +201,36 @@ def cobertura_coordenadas(inc: pd.DataFrame) -> pd.Series:
     """% de los incidentes graves del ITM con coordenadas, por año (D32)."""
     g = inc[inc["gravedad"].isin(["herido", "muerto"]) & inc["anio"].between(2015, 2025)]
     return g.groupby("anio")["lat"].apply(lambda s: s.notna().mean() * 100)
+
+
+def lo_que_se_evita(inc: pd.DataFrame, mor: pd.DataFrame, rapidas: list) -> pd.DataFrame:
+    """Lo que evitan las dos medidas juntas (notebook 06), como % de las muertes y de los incidentes graves
+    de las 3 vías, de los 12 corredores y de toda la ciudad (2019–2024, por año)."""
+    comp = comparacion().loc[("Total 3 vías", "Las dos juntas")]
+    m = pd.read_csv(PROCESADOS / "mc_muertos_corredor.csv", index_col=0)
+    g = pd.read_csv(PROCESADOS / "mc_graves_corredor.csv", index_col=0)
+    anos = 6
+    correccion = g["graves 2019–2024"].sum() / g["registrados"].sum()          # cobertura (D32), la misma de los corredores
+    graves_ciudad = inc["gravedad"].isin(["herido", "muerto"]) & inc["anio"].between(2019, 2024)
+    base = pd.DataFrame({
+        "muertes": {"Las 3 vías": m.loc[rapidas, "muertos 2019–2024"].sum() / anos,
+                    "Los 12 corredores": m["muertos 2019–2024"].sum() / anos,
+                    "Toda la ciudad": mor["anio"].between(2019, 2024).sum() / anos},
+        "incidentes graves": {"Las 3 vías": g.loc[rapidas, "graves 2019–2024"].sum() / anos,
+                              "Los 12 corredores": g["graves 2019–2024"].sum() / anos,
+                              "Toda la ciudad": graves_ciudad.sum() * correccion / anos},
+    })
+    evitados = {"muertes": comp[["muertes evitadas/año", "muertes p5", "muertes p95"]].to_numpy(),
+                "incidentes graves": comp[["graves evitados/año", "graves p5", "graves p95"]].to_numpy()}
+    filas = []
+    for var in ("muertes", "incidentes graves"):
+        med, lo, hi = evitados[var]
+        for escala, b in base[var].items():
+            filas.append({"qué": var, "escala": escala, "por año": b, "evitados": med,
+                          "%": med / b * 100, "% p5": lo / b * 100, "% p95": hi / b * 100})
+    return pd.DataFrame(filas)
+
+
+def largo_vias(rapidas: list) -> float:
+    """Kilómetros de los tramos de las vías intervenidas (catálogo de corredores)."""
+    return float(catalogo().set_index("corredor_id").loc[rapidas, "longitud_km"].sum())

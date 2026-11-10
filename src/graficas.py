@@ -198,31 +198,71 @@ def muertes_por_anio(serie: pd.DataFrame):
     return fig
 
 
-def mapa_corredores(mor_c: pd.DataFrame, cat: pd.DataFrame, nombres: dict, destacados=()):
-    """mor_c = historia.mortalidad_corredor(); cat = historia.catalogo(); nombres = {corredor_id: nombre}."""
+def mapa_corredores(mor_c: pd.DataFrame, cat: pd.DataFrame, nombres: dict, destacados=(), fondo: bool = True):
+    """Muertos 2019–2024 sobre el mapa de Medellín, con los 12 corredores.
+    mor_c = historia.mortalidad_corredor(); cat = historia.catalogo(); nombres = {corredor_id: nombre}.
+    El mapa de fondo (calles de OpenStreetMap, estilo CARTO) necesita `contextily` e internet; si no hay,
+    la gráfica sale igual, sin el fondo."""
     import shapely
-    d = mor_c.dropna(subset=["lat", "lon"])
-    en = d[d["corredor_id"].notna()]
-    fig, ax = plt.subplots(figsize=(9.5, 10))
-    ax.scatter(d["lon"], d["lat"], s=7, color=GRIS, alpha=0.7, lw=0, label="Muerto fuera de los corredores")
-    ax.scatter(en["lon"], en["lat"], s=16, color=ROJO, lw=0, label="Muerto a menos de 50 m de un corredor")
+    import matplotlib.patheffects as pe
+    from matplotlib.lines import Line2D
+    from pyproj import Transformer
+    a_merc = Transformer.from_crs(4326, 3857, always_xy=True)
+
+    lineas = {}
     for cid, w in zip(cat["corredor_id"], cat["geometria_wkt"]):
         p = np.array([(g.x, g.y) for g in shapely.from_wkt(w).geoms])
-        color = AZUL if cid in destacados else TINTA_2
-        ax.plot(p[:, 0], p[:, 1], color=color, lw=3 if cid in destacados else 1.8, alpha=0.9)
-        m = p[len(p) // 2]
-        ax.annotate(nombres.get(cid, cid), (m[0], m[1]), xytext=(4, 4), textcoords="offset points",
-                    fontsize=8.5 if cid not in destacados else 9.5, color=color,
-                    weight="bold" if cid in destacados else "normal")
-    ax.set_aspect("equal"); ax.set_xticks([]); ax.set_yticks([])
-    for s in ax.spines.values():
-        s.set_visible(False)
-    ax.legend(frameon=False, loc="lower left", fontsize=9.5)
+        lineas[cid] = np.column_stack(a_merc.transform(p[:, 0], p[:, 1]))
+    todos = np.vstack(list(lineas.values()))
+    x0, y0 = todos.min(axis=0) - 2500
+    x1, y1 = todos.max(axis=0) + 2500
+
+    d = mor_c.dropna(subset=["lat", "lon"]).copy()
+    d["x"], d["y"] = a_merc.transform(d["lon"].to_numpy(), d["lat"].to_numpy())
+    d = d[d["x"].between(x0, x1) & d["y"].between(y0, y1)]
+    en = d[d["corredor_id"].notna()]
+
+    fig, ax = plt.subplots(figsize=(10, 11))
+    ax.scatter(d["x"], d["y"], s=9, color=TINTA_2, alpha=0.35, lw=0, zorder=3)
+    ax.scatter(en["x"], en["y"], s=18, color=ROJO, lw=0, zorder=5)
+    halo = [pe.Stroke(linewidth=6, foreground="white"), pe.Normal()]
+    colores = dict(zip(destacados, [AZUL, NARANJA, VERDE]))
+    for cid, p in lineas.items():
+        if cid in colores:
+            ax.plot(p[:, 0], p[:, 1], color=colores[cid], lw=4, zorder=4, path_effects=halo, solid_capstyle="round")
+        else:
+            ax.plot(p[:, 0], p[:, 1], color=TINTA, lw=1.8, alpha=0.75, zorder=4, solid_capstyle="round")
+    ax.set_xlim(x0, x1); ax.set_ylim(y0, y1); ax.set_aspect("equal")
+    ax.set_xticks([]); ax.set_yticks([])
+    for s_ in ax.spines.values():
+        s_.set_visible(False)
+
+    if fondo:
+        try:
+            import contextily as cx
+            # Esri World Gray Canvas: mapa gris claro, sin clave de acceso (CARTO ahora pide una)
+            cx.add_basemap(ax, crs="EPSG:3857", source=cx.providers.Esri.WorldGrayCanvas,
+                           attribution="Mapa base: Esri, HERE, Garmin, OpenStreetMap", attribution_size=6, zorder=0)
+        except ImportError:
+            print("(Mapa sin fondo: falta la librería. Para verlo: pip install contextily==1.6.2)")
+        except Exception as e:                                   # sin internet o el servidor no respondió
+            print(f"(Mapa sin fondo: no se pudo descargar el mapa de calles ({type(e).__name__}). Revisa la conexión.)")
+
     total, n_en = len(mor_c), int(mor_c["corredor_id"].notna().sum())
-    top = mor_c[mor_c["corredor_id"].isin(destacados)].shape[0]
-    _titulo(fig, f"{n_en} de los {total:,} muertos (2019–2024) cayeron sobre 12 corredores".replace(",", "."),
-            f"Las 3 vías en azul suman {top} ({top / n_en * 100:.0f}% de los muertos en corredores).")
-    fig.subplots_adjust(left=0.01, right=0.99, top=0.9, bottom=0.01)
+    por = mor_c.dropna(subset=["corredor_id"]).groupby("corredor_id").size()
+    marcas = [Line2D([], [], color=colores[c], lw=4, label=f"{nombres.get(c, c)} · {por.get(c, 0)} muertos")
+              for c in destacados]
+    marcas += [Line2D([], [], color=TINTA, lw=1.8, alpha=0.75, label=f"Otras {len(lineas) - len(destacados)} vías principales"),
+               Line2D([], [], marker="o", ls="", color=ROJO, ms=5, label="Muerto a menos de 50 m de un corredor"),
+               Line2D([], [], marker="o", ls="", color=TINTA_2, alpha=0.5, ms=5, label="Muerto en el resto de la ciudad")]
+    top = int(por.reindex(list(destacados)).fillna(0).sum())
+    leg = ax.legend(handles=marcas, loc="upper left", frameon=True, fontsize=9.5, borderpad=0.8)
+    leg.get_frame().set(facecolor="white", edgecolor=GRILLA, alpha=0.92)
+    _titulo(fig, f"{n_en} de los {total:,} muertos (2019–2024) cayeron sobre {len(lineas)} vías; "
+                 f"{len(destacados)} de ellas suman el {top / n_en * 100:.0f}%".replace(",", "."),
+            f"Muertos del Distrito con coordenadas, zona urbana de Medellín. Las 3 vías de color: {top} muertos "
+            f"({top / n_en * 100:.0f}% de los que cayeron en corredores).")
+    fig.subplots_adjust(left=0.01, right=0.99, top=0.91, bottom=0.01)
     return fig
 
 
@@ -307,9 +347,12 @@ def peaton_contra_moto(t: pd.DataFrame):
     ax.set_xlim(t.index[0] - 0.4, t.index[-1] + 1.4); ax.set_xticks(t.index)
     ax.set_ylabel("Muertos por año")
     _estilo(ax)
-    p0, p1 = t["Peatón"].iloc[1], t["Peatón"].loc[2019]
-    _titulo(fig, f"Los peatones muertos bajaron {abs(p1 / p0 - 1) * 100:.0f}% entre 2015 y 2019; los motociclistas, no",
-            "Víctimas fallecidas por año (MEData). 2021 va punteado: el archivo llega hasta septiembre.")
+    ax.axvspan(2019.5, 2020.5, color=GRILLA, alpha=0.7, lw=0, zorder=0)
+    ax.text(2020, ax.get_ylim()[1], "pandemia", ha="center", va="top", fontsize=9, color=TINTA_2)
+    cambio = {a_: (t[a_].loc[2019] / t[a_].loc[2015] - 1) * 100 for a_ in ("Peatón", "Moto")}
+    verbo = lambda v: f"bajaron {abs(v):.0f}%" if v < -2 else (f"subieron {v:.0f}%" if v > 2 else "casi no cambiaron")
+    _titulo(fig, f"Antes de la pandemia, los peatones muertos {verbo(cambio['Peatón'])}; los motociclistas {verbo(cambio['Moto'])}",
+            "Víctimas fallecidas por año (MEData), 2015 contra 2019. La caída de 2020 es la pandemia; 2021 (punteado) llega solo hasta septiembre.")
     fig.subplots_adjust(left=0.08, right=0.97, top=0.82, bottom=0.1)
     return fig
 
@@ -504,4 +547,63 @@ def dia_noche(t: pd.DataFrame):
                  f"pero el {pct.loc['muertos', 'noche']:.0f}% de los muertos",
             "12 corredores, 2019–2024. Noche = 20:00 a 5:59 (notebook 06).")
     fig.subplots_adjust(left=0.15, right=0.98, top=0.74, bottom=0.05)
+    return fig
+
+
+def lo_que_se_evita(t: pd.DataFrame):
+    """t = historia.lo_que_se_evita(): % de muertes e incidentes graves evitados en 3 escalas."""
+    escalas = ["Las 3 vías", "Los 12 corredores", "Toda la ciudad"]
+    fig, axs = plt.subplots(1, 2, figsize=(12, 3.9), sharey=True)
+    for ax, (var, color) in zip(axs, [("incidentes graves", AZUL), ("muertes", ROJO)]):
+        d = t[t["qué"] == var].set_index("escala").reindex(escalas)
+        y = np.arange(len(escalas))[::-1]
+        ax.barh(y, d["%"], color=color, height=0.55, alpha=0.9)
+        ax.hlines(y, d["% p5"], d["% p95"], color=TINTA, lw=1.4)
+        for yi, (v, b, e) in zip(y, zip(d["%"], d["por año"], d["evitados"])):
+            ax.text(d["% p95"].max() * 1.04, yi, f"{v:.0f}%  ·  {e:,.0f} de {b:,.0f} al año".replace(",", ".")
+                    if var == "incidentes graves" else f"{v:.0f}%  ·  {e:.1f} de {b:.0f} al año".replace(".", ","),
+                    va="center", fontsize=9.5, color=TINTA)
+        ax.set_xlim(0, d["% p95"].max() * 1.75); ax.set_yticks(y, escalas)
+        ax.set_title(f"{var.capitalize()} que se evitan", loc="left", fontsize=11.5, color=TINTA)
+        ax.set_xlabel("% del total de cada escala")
+        _estilo(ax, eje="x")
+    g3 = t[(t["qué"] == "incidentes graves") & (t["escala"] == "Las 3 vías")]["%"].iloc[0]
+    _titulo(fig, f"Tocando solo 3 vías se evitaría el {g3:.0f}% de sus incidentes graves, no solo muertes",
+            "Las dos medidas juntas (notebook 06). Barra = mediana; línea = intervalo de 90%. Base: promedio anual 2019–2024.")
+    fig.subplots_adjust(left=0.13, right=0.98, top=0.8, bottom=0.14, wspace=0.12)
+    return fig
+
+
+def lo_que_cambia(evita: pd.DataFrame, comp: pd.DataFrame, km: float):
+    """Las cifras de la propuesta como tarjetas: vidas, heridos graves, 10 años y costo en tiempo.
+    evita = historia.lo_que_se_evita(); comp = historia.comparacion(); km = largo de las 3 vías."""
+    tot = comp.loc[("Total 3 vías", "Las dos juntas")]
+    seg = comp.xs("Tope de 50", level="medida")["segundos por viaje (día)"].drop("Total 3 vías", errors="ignore")
+    g3 = evita[(evita["qué"] == "incidentes graves") & (evita["escala"] == "Las 3 vías")].iloc[0]
+    m3 = evita[(evita["qué"] == "muertes") & (evita["escala"] == "Las 3 vías")].iloc[0]
+    coma = lambda v, d=1: f"{v:.{d}f}".replace(".", ",")
+    miles = lambda v: f"{v:,.0f}".replace(",", ".")
+    tarjetas = [
+        (coma(tot["muertes evitadas/año"]), "vidas salvadas al año",
+         f"entre {coma(tot['muertes p5'])} y {coma(tot['muertes p95'])}\n1 de cada {100 / m3['%']:.0f} muertes en esas vías", ROJO),
+        (miles(tot["graves evitados/año"]), "incidentes graves menos al año",
+         f"1 de cada {100 / g3['%']:.0f} en esas vías\nchoques con heridos o muertos que no ocurren", AZUL),
+        (f"~{tot['muertes evitadas/año'] * 10:.0f}", "vidas en 10 años",
+         f"y unos {miles(round(tot['graves evitados/año'] * 10, -2))} incidentes graves menos\nsi se mantienen las medidas", VERDE),
+        (f"{seg.max():.0f} s", "el mayor costo por viaje",
+         f"en la Regional; {seg.min():.0f} a {seg.drop(seg.idxmax()).max():.0f} s en las autopistas\nmenos de un minuto por viaje", NARANJA),
+    ]
+    fig, axs = plt.subplots(1, 4, figsize=(14, 3.6))
+    for ax, (cifra, que, detalle, color) in zip(axs, tarjetas):
+        ax.axis("off")
+        ax.add_patch(FancyBboxPatch((0.02, 0.04), 0.96, 0.9, boxstyle="round,pad=0,rounding_size=0.06",
+                                    transform=ax.transAxes, fc=color, ec="none", alpha=0.12))
+        ax.add_patch(FancyBboxPatch((0.02, 0.04), 0.03, 0.9, boxstyle="square,pad=0", transform=ax.transAxes,
+                                    fc=color, ec="none"))
+        ax.text(0.12, 0.7, cifra, transform=ax.transAxes, fontsize=30, weight="bold", color=TINTA, va="center")
+        ax.text(0.12, 0.46, que, transform=ax.transAxes, fontsize=11.5, weight="bold", color=TINTA, va="center")
+        ax.text(0.12, 0.22, detalle, transform=ax.transAxes, fontsize=9.5, color=TINTA_2, va="center", linespacing=1.4)
+    _titulo(fig, f"Con solo {coma(km)} km de vía intervenidos: 1 de cada 4 muertes e incidentes graves de esas vías",
+            "Las dos medidas juntas, mediana del Monte Carlo (notebook 06). Base: promedio anual 2019–2024.")
+    fig.subplots_adjust(left=0.005, right=0.995, top=0.8, bottom=0.02, wspace=0.05)
     return fig
