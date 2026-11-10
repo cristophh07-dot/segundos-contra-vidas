@@ -12,7 +12,8 @@
 
 - **Corrección:** la cifra "−32%" que usábamos no aparece en ninguna fuente. Se reemplaza por el **rango −22% a −37%**.
 - **Cuidado al citarlo:** el −37% compara solo 4 meses y no tiene grupo de control, así que puede incluir regresión a la media. El −22% cubre más vías. Existe un estudio con grupos de control (López et al., 2019, *Effects of reducing and enforcing speed limits in selected arterial roads in Bogota*), pero sus resultados se reportan por kilómetro y para motociclistas, y no se pudo acceder al texto completo.
-- La medida se acompañó de control (cámaras y multas). No fue solo un cambio de señales.
+- **Cómo se hizo cumplir (corregido):** en 2018 no fue con cámaras. Se cambiaron las señales de 60 a 50 km/h en octubre de 2018, hubo puestos de control visibles de la Policía de Tránsito (759 entre enero y noviembre de 2018, frente a 356 en 2017), un periodo pedagógico hasta el 13 de diciembre y **multas desde el 15 de diciembre de 2018** ([Alcaldía de Bogotá](https://bogota.gov.co/mi-ciudad/movilidad/multas-para-quienes-superen-50-km/h-en-5-corredores-de-bogota)). No fue solo un cambio de señales.
+- **Cámaras de fotodetección (después):** en las zonas con cámaras, los siniestros con fallecidos bajaron 19% en 2022 y el primer semestre de 2023; la fuente no dice frente a qué periodo. La Secretaría atribuye al límite de 50 km/h en los corredores principales 202 vidas salvadas desde 2018 frente al promedio anterior ([Alcaldía de Bogotá, 2023](https://bogota.gov.co/mi-ciudad/movilidad/camaras-de-fotodeteccion-redujeron-siniestros-viales-con-fatalidad)). Sirve como apoyo, no como cifra del Monte Carlo: no tiene periodo de comparación claro.
 
 ## 2. Malasia: carril exclusivo de motos en la Federal Highway F02
 
