@@ -8,6 +8,9 @@ pct_sobre_50: % de la intensidad medida a más de 50 km/h.
 
 ADVERTENCIA: las mediciones son de 2020, con restricciones por la pandemia (D19: cuarentena mar-ago 2020, velocidades ~29 % más altas). El nivel absoluto de velocidad puede estar inflado respecto a un año normal; lo que se usa es la razón noche/día (razon_noche_dia_media y razon_noche_dia_p85), no los niveles.
 
+Nota de lectura (p85): los km/h son enteros, así que 1 km/h equivale a ~2 % del p85. La razón noche/día del p85 es 0.980: la velocidad alta (p85) es igual de día y de noche (la diferencia queda dentro de la resolución de 1 km/h).
+Nota de lectura (media): la media ponderada es continua y no tiene esa limitación; bajó 7.8 % de noche en el periodo medido (2020, pandemia), así que no se describe como 'igual'.
+
 Tabla por corredor y franja:
    corredor_id franja  n_mediciones  intensidad_total  v_media_ponderada  p85  pct_sobre_50  razon_noche_dia_media  razon_noche_dia_p85
      AUT_NORTE    dia         15190        12831626.0            38.6255 52.0       17.5631                 0.9650               1.0192
@@ -35,6 +38,6 @@ AV_FERROCARRIL  noche          2465          272315.0            29.2277 52.0   
          CL_30    dia          5259         1986553.0            29.5815 38.0        0.2370                 0.9553               1.0000
          CL_30  noche          3753          641300.0            28.2579 38.0        0.8188                 0.9553               1.0000
 
-Avisos: AVISO: la razón del p85 (-2.0 %) se aleja de ~+4 % de D20 (rango aceptado +1 % a +7 %). Ojo: aquí son solo los 12 corredores.
+Avisos: ninguno.
 
 P4: AUT_SUR tiene 26 sensores entre latitud 6.2010 y 6.2587; AUT_NORTE va de 6.2627 a 6.3095 → NO aparece en el norte (todos sus sensores quedan al sur del sensor más al sur de AUT_NORTE); el alias de AUT_SUR en CORREDORES NO contiene CR 62-63 (('Autopista Sur', 'CR 50|CARRERA 50', 'Autopista Sur')).

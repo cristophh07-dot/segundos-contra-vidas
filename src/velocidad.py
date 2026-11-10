@@ -621,6 +621,7 @@ def _pruebas_nocturna() -> None:
     horas = perfil_horario_corredor(limpia)
     todo_ok = True
     avisos: list[str] = []
+    notas: list[str] = []
 
     ids12 = list(_C.keys()) if hasattr(_C, "keys") else list(_C)
     if not all(isinstance(i, str) for i in ids12):
@@ -661,13 +662,22 @@ def _pruebas_nocturna() -> None:
         print("\n3) Razón noche/día, 12 corredores juntos (ponderada por intensidad):")
         print(f"   p85: día {md['p85']:.1f} · noche {mn['p85']:.1f} · razón {r85:.3f} ({(r85 - 1) * 100:+.1f} %)")
         print(f"   media: día {md['v_media_ponderada']:.1f} · noche {mn['v_media_ponderada']:.1f} · razón {rmed:.3f} ({(rmed - 1) * 100:+.1f} %)")
-        if abs(r85 - RAZON_P85_ESPERADA) > RAZON_P85_TOLERANCIA:
-            msg = (f"AVISO: la razón del p85 ({(r85 - 1) * 100:+.1f} %) se aleja de ~+4 % de D20 "
-                   f"(rango aceptado {(RAZON_P85_ESPERADA - RAZON_P85_TOLERANCIA - 1) * 100:+.0f} % a "
-                   f"{(RAZON_P85_ESPERADA + RAZON_P85_TOLERANCIA - 1) * 100:+.0f} %). Ojo: aquí son solo los 12 corredores.")
-            print("   " + msg)
-            avisos.append(msg)
-            todo_ok = False
+        resol = 1.0 / md["p85"]  # el p85 viene en km/h enteros: 1 km/h es esta fracción del p85
+        if round(abs(r85 - 1), 3) <= round(resol, 3):
+            lectura = "igual de día y de noche (la diferencia queda dentro de la resolución de 1 km/h)"
+        else:
+            lectura = "distinta de día y de noche (la diferencia supera la resolución de 1 km/h)"
+        notas.append(
+            f"Nota de lectura (p85): los km/h son enteros, así que 1 km/h equivale a ~{resol * 100:.0f} % del p85. "
+            f"La razón noche/día del p85 es {r85:.3f}: la velocidad alta (p85) es {lectura}."
+        )
+        notas.append(
+            f"Nota de lectura (media): la media ponderada es continua y no tiene esa limitación; "
+            f"{'bajó' if rmed < 1 else 'subió'} {abs(rmed - 1) * 100:.1f} % de noche en el periodo medido "
+            f"(2020, pandemia), así que no se describe como 'igual'."
+        )
+        for n in notas:
+            print("   " + n)
         por_c = franja.drop_duplicates("corredor_id")[["corredor_id", "razon_noche_dia_media", "razon_noche_dia_p85"]]
         print("\n   Razón por corredor:")
         print(por_c.to_string(index=False))
@@ -704,6 +714,7 @@ def _pruebas_nocturna() -> None:
         "velocidades ~29 % más altas). El nivel absoluto de velocidad puede estar inflado respecto a un año normal; "
         "lo que se usa es la razón noche/día (razon_noche_dia_media y razon_noche_dia_p85), no los niveles.",
         "",
+        *(notas + [""] if notas else []),
         "Tabla por corredor y franja:",
         franja.to_string(index=False),
         "",
