@@ -40,23 +40,64 @@ SESION.mount("http://", HTTPAdapter(max_retries=_reintentos))
 
 
 def _descargar(url: str, destino: pathlib.Path) -> None:
-    with SESION.get(url, stream=True, timeout=600) as r:
-        r.raise_for_status()
-        tmp = destino.with_suffix(destino.suffix + ".part")
-        with open(tmp, "wb") as f:
-            for bloque in r.iter_content(chunk_size=1 << 20):
-                f.write(bloque)
-    # En Windows, el antivirus o la sincronización (OneDrive) pueden tener el archivo abierto unos
-    # segundos justo después de descargarlo: se reintenta el cambio de nombre antes de fallar.
-    for intento in range(15):
+    """Descarga `url` y la deja en `destino` de forma segura aunque dos notebooks la pidan a la vez.
+
+    - Cada proceso escribe en su propio archivo temporal y, al terminar, lo pone en `destino` de un
+      solo golpe (os.replace): nadie puede leer un archivo a medio descargar.
+    - Si otro proceso ya está descargando el mismo archivo (hay un `.lock` reciente), se espera a que
+      termine en vez de descargarlo dos veces.
+    - En Windows, el antivirus puede tener el archivo abierto unos segundos: se reintenta.
+    """
+    candado = destino.with_name(destino.name + ".lock")
+    propio, avisado = False, False
+    while not propio:
         try:
-            os.replace(tmp, destino)
-            return
-        except PermissionError:
-            if intento == 14:
-                raise PermissionError(f"Windows no deja renombrar {tmp.name} (lo tiene abierto otro programa, "
-                                      "por ejemplo el antivirus). Espera un momento y vuelve a correr la celda.")
+            os.close(os.open(candado, os.O_CREAT | os.O_EXCL | os.O_WRONLY))
+            propio = True
+        except FileExistsError:
+            try:
+                viejo = time.time() - candado.stat().st_mtime > 180      # quedó de una corrida interrumpida
+            except FileNotFoundError:
+                continue
+            if viejo:
+                try:
+                    candado.unlink()
+                except OSError:
+                    pass
+                continue
+            if not avisado:
+                print(f"Otro notebook ya está descargando {destino.name}; se espera a que termine…")
+                avisado = True
             time.sleep(2)
+            if destino.exists():
+                return
+    tmp = destino.with_name(f"{destino.name}.{os.getpid()}.part")
+    try:
+        if destino.exists():                                             # lo dejó listo el otro proceso
+            return
+        with SESION.get(url, stream=True, timeout=600) as r:
+            r.raise_for_status()
+            with open(tmp, "wb") as f:
+                for bloque in r.iter_content(chunk_size=1 << 20):
+                    f.write(bloque)
+                    os.utime(candado)                                    # el candado sigue vivo
+        for intento in range(30):
+            try:
+                os.replace(tmp, destino)
+                return
+            except PermissionError:
+                if intento == 29:
+                    raise PermissionError(
+                        f"Windows no deja guardar {destino.name}: otro programa lo tiene abierto (por ejemplo "
+                        "el antivirus, u otro notebook corriendo a la vez). Cierre los demás notebooks, espere "
+                        "un momento y vuelva a correr la celda.") from None
+                time.sleep(2)
+    finally:
+        for sobrante in (tmp, candado):
+            try:
+                sobrante.unlink(missing_ok=True)
+            except OSError:
+                pass
 
 
 def _verificar_sha256(ruta: pathlib.Path, esperado: str | None) -> None:
@@ -136,7 +177,9 @@ def leer(nombre: str, forzar: bool = False, **kwargs):
         if destino.exists() and not forzar:
             return pd.read_csv(destino, dtype=str)
         df = _leer_arcgis(f["url"])
-        df.to_csv(destino, index=False)
+        tmp = destino.with_name(f"{destino.name}.{os.getpid()}.part")
+        df.to_csv(tmp, index=False)
+        os.replace(tmp, destino)                                         # nadie lee un archivo a medias
         return df
 
     destino = CACHE / f"{nombre}.{f['formato']}"
