@@ -115,15 +115,15 @@ ITM · Categoría Interna · Modalidad Análisis de datos · Temática Transport
 6. USO DE IA
    Herramienta: Claude (Anthropic), en la interfaz de chat.
    Para qué se usó:
-   - Escribir y depurar código (lectura de fuentes, limpieza, modelos y gráficas).
-   - Explicar pruebas estadísticas e interpretar resultados ya calculados.
+   - Enfoque principalmente en la generación de código, la identificación y solución de errores y la resolución de problemas relacionados con el código generado.
    - Redactar borradores de textos, decisiones y mensajes del equipo.
    Cómo se verificó:
+   - la IA no tomó las decisiones fundamentales del proyecto.
    - Todo el código se ejecutó en los computadores del equipo con los datos reales,
      descargados desde las URLs de src/fuentes.py. Las cifras salen de esas ejecuciones.
    - Los datos sintéticos solo se usaron para probar que el código corre; ningún resultado
      del proyecto sale de ellos.
-   - Las decisiones del proyecto las tomó el equipo (docs/DECISIONES.md).
+   - El criterio, las decisiones, el análisis y la responsabilidad sobre los resultados siempre estuvieron en manos del equipo. (docs/DECISIONES.md).
    Detalle: docs/uso_ia_general.md.
 
 7. CONTACTO
