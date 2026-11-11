@@ -124,7 +124,7 @@ ITM · Categoría Interna · Modalidad Análisis de datos · Temática Transport
    - Los datos sintéticos solo se usaron para probar que el código corre; ningún resultado
      del proyecto sale de ellos.
    - Las decisiones del proyecto las tomó el equipo (docs/DECISIONES.md).
-   Detalle por integrante: docs/uso_ia_cristopher.md, docs/uso_ia_josue.md y docs/uso_ia_johan.md.
+   Detalle: docs/uso_ia_general.md.
 
 7. CONTACTO
    Cristopher Corrales Boada · cristophh.07@gmail.com
