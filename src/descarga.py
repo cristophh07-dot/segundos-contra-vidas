@@ -12,6 +12,8 @@ Uso:
 from __future__ import annotations
 
 import hashlib
+import time
+import os
 import io
 import pathlib
 import zipfile
@@ -44,7 +46,17 @@ def _descargar(url: str, destino: pathlib.Path) -> None:
         with open(tmp, "wb") as f:
             for bloque in r.iter_content(chunk_size=1 << 20):
                 f.write(bloque)
-        tmp.rename(destino)
+    # En Windows, el antivirus o la sincronización (OneDrive) pueden tener el archivo abierto unos
+    # segundos justo después de descargarlo: se reintenta el cambio de nombre antes de fallar.
+    for intento in range(15):
+        try:
+            os.replace(tmp, destino)
+            return
+        except PermissionError:
+            if intento == 14:
+                raise PermissionError(f"Windows no deja renombrar {tmp.name} (lo tiene abierto otro programa, "
+                                      "por ejemplo el antivirus). Espera un momento y vuelve a correr la celda.")
+            time.sleep(2)
 
 
 def _verificar_sha256(ruta: pathlib.Path, esperado: str | None) -> None:
