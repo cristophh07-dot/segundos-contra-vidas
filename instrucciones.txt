@@ -17,44 +17,64 @@ ITM · Categoría Interna · Modalidad Análisis de datos · Temática Transport
 
 3. EJECUTARLO
    Requisitos
-   - Python 3.13. Sirve con o sin Anaconda:
+   - Python 3.13 (recomendado). Sirve con o sin Anaconda:
        · Anaconda (trae Python y Jupyter): https://www.anaconda.com/download
        · Python solo: https://www.python.org/downloads/
          En Windows, al instalar, marcar la casilla "Add python.exe to PATH".
    - Conexión a internet. No hay que descargar datos a mano: el código los baja solo desde las
      fuentes oficiales (unos 370 MB la primera vez).
-   - Probado en Windows con Anaconda; versiones exactas de las librerías en requirements.txt.
+   - Desarrollado en Windows con Anaconda. Versiones exactas de las librerías en requirements.txt.
 
    Pasos
    1) Descargar el repositorio: en https://github.com/cristophh07-dot/segundos-contra-vidas
-      botón verde "Code" → "Download ZIP", y descomprimir la carpeta.
+      botón verde "Code" → "Download ZIP", y descomprimirlo (clic derecho → "Extraer todo").
+      La carpeta se llama segundos-contra-vidas-main. Ojo: Windows a veces la crea dos veces,
+      una dentro de la otra; la correcta es la que tiene adentro requirements.txt, src y notebooks.
       (Con git: git clone https://github.com/cristophh07-dot/segundos-contra-vidas.git)
-   2) Abrir una terminal dentro de esa carpeta ("Anaconda Prompt", o "Símbolo del sistema"
-      sin Anaconda) y escribir, cambiando la ruta por la suya:
-          cd C:\ruta\a\segundos-contra-vidas
+   2) Abrir una terminal en esa carpeta, sin escribir rutas:
+      en el Explorador de archivos, entrar a la carpeta correcta (la que tiene requirements.txt),
+      hacer clic en la barra de direcciones de arriba, borrar lo que dice, escribir  cmd  y
+      presionar Enter. Se abre una terminal ya ubicada ahí.
+      (Con Anaconda: abrir "Anaconda Prompt" y escribir  cd  seguido de la ruta de la carpeta.)
+      Para comprobar que está en el lugar correcto, escribir  dir  (o  Get-ChildItem  en
+      PowerShell): debe aparecer requirements.txt. Si solo aparece otra carpeta
+      segundos-contra-vidas-main, entrar a ella con:
+          cd segundos-contra-vidas-main
    3) Instalar las librerías (una sola vez; tarda unos minutos):
           python -m pip install -r requirements.txt
-   4) Abrir Jupyter (se abre en el navegador) y entrar a la carpeta notebooks/:
+   4) Correr todo con un solo comando (recomendado):
+          python -m src.correr_todo
+      Corre los 4 notebooks necesarios en orden, uno a la vez, y va mostrando el avance.
+      La primera vez descarga los datos y puede tardar bastante: no cierre la ventana.
+      Al terminar dice "Todo corrió bien".
+   5) Ver el resultado: abrir Jupyter (se abre en el navegador), entrar a la carpeta notebooks/
+      y abrir segundos_contra_vidas.ipynb, que ya queda ejecutado:
           python -m notebook
-   5) Correr estos notebooks en orden. En cada uno: menú "Run" → "Run All Cells", y esperar a
-      que termine antes de abrir el siguiente:
+
+   Alternativa al paso 4: correrlos a mano desde Jupyter
+      Abrir Jupyter (python -m notebook), entrar a notebooks/ y correr en este orden, cada uno
+      con el menú "Run" → "Run All Cells":
           a) 03_exponente_medellin.ipynb
           b) 05_prediccion.ipynb
           c) 06_montecarlo.ipynb
           d) segundos_contra_vidas.ipynb   ← NOTEBOOK PRINCIPAL
-      Los tres primeros calculan los resultados que usa el principal. Si falta alguno, la
-      primera celda del principal dice cuál correr. Los notebooks 01, 02 y 04 son anexos.
+      IMPORTANTE: de a uno. No abrir ni correr el siguiente hasta que el anterior termine
+      (ninguna celda con [*] a la izquierda). Si se corren dos a la vez, compiten por los
+      mismos archivos y fallan.
+      Los tres primeros calculan los resultados que usa el principal. Los notebooks 01, 02 y 04
+      son anexos.
 
    Si algo sale mal
    - "python no se reconoce": reinstalar Python marcando "Add python.exe to PATH", o usar
      Anaconda Prompt.
    - Hay varias versiones de Python: usar  py -3.13 -m pip install -r requirements.txt
-     y  py -3.13 -m notebook
+     y  py -3.13 -m src.correr_todo
+   - Error con archivos de data\cache (PermissionError o FileNotFoundError), o un error raro
+     después de interrumpir una ejecución: casi siempre es que había dos notebooks corriendo a
+     la vez. Cerrar Jupyter, borrar las carpetas data\cache y data\processed, y repetir el paso 4.
    - Falla una descarga: revisar la conexión y comprobar las fuentes con
      python -m src.verificar_fuentes   (cada una debe salir [OK]).
-   - Error después de una ejecución interrumpida: borrar las carpetas data/cache/ y
-     data/processed/ y repetir el paso 5.
-   - Es normal que la primera vez tarde varios minutos: está descargando los datos.
+   - Es normal que la primera vez tarde: está descargando los datos y simulando.
 
 4. QUÉ DEBE VER EL JURADO
    Al final del notebook principal, en "Cierre · Lo que proponemos":
